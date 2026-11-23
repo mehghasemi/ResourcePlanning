@@ -5,3 +5,4 @@ returns/
 .runtime-data/
 verification/
 *.log
+work/
