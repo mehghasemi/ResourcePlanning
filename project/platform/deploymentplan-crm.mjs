@@ -18,21 +18,20 @@ export function planningSprintDate(start,end,name){
  return {date:from||to,sourceDate:from,endDate:to,basis:'source-date'}
 }
 const inList=(f,names)=>names.map(norm).includes(norm(f.LogicalName))||labels(f.DisplayName).some(l=>names.map(norm).includes(norm(l)))
-function field(e,names,required=false){const f=e.fields.find(f=>inList(f,names));if(required&&!f)throw fail('فیلد لازم در CRM تأیید نشد: '+names[0],422);return f}
+function field(e,names,required=false){const f=names.map(name=>e.fields.find(candidate=>inList(candidate,[name]))).find(Boolean);if(required&&!f)throw fail('فیلد لازم در CRM تأیید نشد: '+names[0],422);return f}
 const select=(...fields)=>[...new Set(fields.flat().filter(Boolean).map(f=>typeof f==='string'?f:key(f)))].join(',')
 const pages=(read,r,p)=>readCrmPages(read,r,p,{requireComplete:true,maxPages:1000,maxRows:50000,maxMs:540000})
 export const temporaryPlanningViewName='همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون'
 const viewName=value=>String(value||'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\s\u200c]+/g,' ').trim()
 const isCaseView=row=>['incident','112'].includes(String(row.returnedtypecode))&&row.statecode!==1
 export async function listPlanningViews(read){
- const views=[];let denied=0
- for(const [type,resource,idField] of [['system','savedqueries','savedqueryid'],['personal','userqueries','userqueryid']]){
-  let result;try{result=await pages(read,resource,{'$select':`${idField},name,returnedtypecode,statecode`})}catch(e){if(e.status===403){denied++;continue}throw e}
-  for(const row of result.value)if(isCaseView(row)&&guid.test(row[idField]||''))views.push({type,id:row[idField].toLowerCase(),name:String(row.name||'')})
- }
- if(denied===2)throw fail('حساب CRM به فهرست ویوها دسترسی ندارد.',403)
+ const sources=[['system','savedqueries','savedqueryid'],['personal','userqueries','userqueryid']]
+ const results=await Promise.all(sources.map(async([type,resource,idField])=>{try{return {type,idField,result:await pages(read,resource,{'$select':`${idField},name,returnedtypecode,statecode`})}}catch(e){if(e.status===403)return {denied:true};throw e}}))
+ if(results.every(result=>result.denied))throw fail('حساب CRM به فهرست ویوها دسترسی ندارد.',403)
+ const views=[];for(const source of results){if(source.denied)continue;for(const row of source.result.value)if(isCaseView(row)&&guid.test(row[source.idField]||''))views.push({type:source.type,id:row[source.idField].toLowerCase(),name:String(row.name||'')})}
  return views.sort((a,b)=>a.name.localeCompare(b.name,'fa')||a.type.localeCompare(b.type))
 }
+
 export async function resolvePlanningView(read,input){
  if(input?.name){if(!['auto','system','personal'].includes(input.type)||viewName(input.name)!==viewName(temporaryPlanningViewName))throw fail('نام ویوی موقت CRM معتبر نیست.');const views=await listPlanningViews(read),types=input.type==='auto'?['system','personal']:[input.type];for(const type of types){const matches=views.filter(v=>v.type===type&&viewName(v.name)===viewName(input.name));if(matches.length>1)throw fail('چند ویو با این نام پیدا شد؛ شناسهٔ ویو را ثبت کنید.',422);if(matches.length)return matches[0]}throw fail('ویوی موقت تعهدات در CRM پیدا نشد؛ لینک یا شناسهٔ آن را ثبت کنید.',422)}
  return verifyPlanningView(read,{type:input?.type,reference:input?.id||input?.reference})
@@ -64,7 +63,7 @@ export async function planningMetadata(read){
  for(const status of openStatuses){const matched=statusFields.flatMap(sf=>(statusMaps[sf.LogicalName]||[]).filter(o=>o.labels.some(l=>aliases[status].map(norm).includes(norm(l)))).map(o=>({field:sf.LogicalName,value:o.value})));if(!matched.length)throw fail('وضعیت '+status+' در CRM تأیید نشد.',422);statusValues[status]=matched}
  const stateOptions=await options(read,incident,f.state),active=stateOptions.filter(o=>o.labels.some(l=>['active','فعال'].includes(norm(l))));if(active.length!==1)throw fail('وضعیت فعال در metadata CRM تأیید نشد.',422);const activeState=active[0].value;
  const planningStatusField=statusFields.find(sf=>openStatuses.every(status=>(statusValues[status]||[]).some(x=>x.field===sf.LogicalName)))?.LogicalName||null;if(planningStatusField)for(const status of openStatuses)statusValues[status]=statusValues[status].filter(x=>x.field===planningStatusField);
- const project=await entity(read,'brd_project'),pf={name:field(project,[project.PrimaryNameAttribute],true),manager:field(project,['brd_projectmanager','Project Manager']),customer:field(project,['brd_account','brd_customer','Account']),province:field(project,['brd_province','address1_stateorprovince','Province']),city:field(project,['brd_city','address1_city','City'])}
+ const project=await entity(read,'brd_project'),pf={name:field(project,[project.PrimaryNameAttribute],true),manager:field(project,['brd_projectmanager','Project Manager']),customer:field(project,['brd_customer','customerid','Customer','مشتری','brd_account','Account']),province:field(project,['brd_province','address1_stateorprovince','Province']),city:field(project,['brd_city','address1_city','City'])}
  let sprint=null;if(f.sprint.AttributeType==='Lookup'){const targets=await lookupTargets(read,incident,f.sprint);if(targets.length!==1)throw fail('رابطهٔ هفتهٔ مرجع در CRM یکتا نیست.',422);const e=await entity(read,targets[0]);sprint={...e,date:field(e,['brd_startdate','brd_starttime','brd_fromdate','brd_start','Start Date','تاریخ شروع']),end:field(e,['brd_enddate','brd_endtime','brd_todate','End Date','To Date','تاریخ پایان'])}}
  let account=null;try{account=await entity(read,'account')}catch(e){if(e.status!==403)throw e}
  return {incident,f,kindValues,kindOptions,statusFields,statusMaps,statusValues,activeState,stateOptions,planningStatusField,project,pf,sprint,account}

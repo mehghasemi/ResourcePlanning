@@ -11,7 +11,7 @@ import {createPlanState,seedInitialExperts,applyCommand,applySnapshot,archiveWee
 // One encrypted workspace in the existing root-bound repository; no second database.
 export const planningWorkspace='e3676820-a2db-4185-96d1-7b07e74af276'
 export function createDeploymentplanHttp({root,store,repository,send,bodyJson,read=crmUserGet,clock=()=>new Date(),loadMetadata=planningMetadata,fetchSnapshot=fetchPlanningSnapshot,authorizeIds=authorizedPlanningIds,authorizeProjectIds=authorizedPlanningProjects,authorizeEvidenceIds=authorizedPlanningEvidence}){
- const schemas=new Map(),jobs=new Map();let flight=null,ticking=false
+ const schemas=new Map(),viewCatalogs=new Map(),jobs=new Map();let flight=null,ticking=false
  const fingerprint=u=>createHash('sha256').update(JSON.stringify([u.organization?.id,u.organization?.disabled,u.organization?.crm])).digest('hex')
  async function fresh(user){const u=await store.get(user?.id);if(!u?.enabled||u.revision!==user.revision)throw fail('نشست یا دسترسی تغییر کرده؛ دوباره وارد شوید.',401);requireTool(u,'deploymentplan');return u}
  function connection(u){const c=!u.organization?.disabled&&u.organization?.crm;if(!c?.userId||c.invalidated)throw fail('حساب سازمانی CRM را از تنظیمات مشترک متصل کنید.',428);return c}
@@ -38,19 +38,20 @@ export function createDeploymentplanHttp({root,store,repository,send,bodyJson,re
   const action=route.slice('/api/deploymentplan/'.length)
   if(req.method==='GET'&&action==='info'){let version=null;try{version=await componentVersion(root,'deploymentplan')}catch(e){if(e.message!=='Unknown component')throw e}send(res,200,{name:user.name,manager:canManageTool(user,'deploymentplan'),version,crmConnected:Boolean(!user.organization?.disabled&&user.organization?.crm?.userId&&!user.organization?.crm?.invalidated),crmIdentity:user.organization?.crm?.displayName||null});return true}
   if(req.method==='POST'&&action==='connection/check'){const p=await bodyJson(req);if(Object.keys(p).length)throw fail('تست فقط برای حساب سازمانی فعلی انجام می‌شود.');await reader(user);send(res,200,{state:'connected',identity:connection(user).displayName,checkedAt:clock().toISOString()});return true}
-  if(req.method==='GET'&&action==='view/catalog'){send(res,200,{views:await listPlanningViews(await reader(user))});return true}
+  if(req.method==='GET'&&action==='view/catalog'){const key=user.id+fingerprint(user),cached=viewCatalogs.get(key),force=url.searchParams.get('refresh')==='1';if(cached&&!force&&cached.at>Date.now()-600000){send(res,200,{views:cached.views});return true}const views=await listPlanningViews(await reader(user));viewCatalogs.set(key,{at:Date.now(),views});send(res,200,{views});return true}
   if(req.method==='POST'&&action==='view/check'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['type','reference'].includes(k)))throw fail('مشخصات ویو معتبر نیست.');send(res,200,await verifyPlanningView(await reader(user),p));return true}
   if(req.method==='GET'&&action==='job'){const j=jobs.get(url.searchParams.get('id'));if(!j||j.userId!==user.id||j.fingerprint!==fingerprint(user))throw fail('وضعیت دریافت پیدا نشد.',404);send(res,200,publicJob(j));return true}
   if(req.method==='POST'&&action==='sync'){const p=await bodyJson(req);if(Object.keys(p).some(k=>k!=='mode')||p.mode&&!['manual','entry'].includes(p.mode))throw fail('درخواست بازخوانی معتبر نیست.');const s=await rawState();if(p.mode==='entry'&&!s.settings.syncOnEntry){send(res,200,{state:'disabled'});return true}send(res,202,await startSync(user,p.mode||'manual'));return true}
   if(req.method==='GET'&&action==='state'){await archive();const s=await state(),scope=await allowed(user,s);send(res,200,view(s,scope,user));return true}
   if(req.method==='POST'&&action==='command'){
    const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['revision','action','data'].includes(k))||!Number.isSafeInteger(p.revision)||typeof p.action!=='string'||!p.data||typeof p.data!=='object'||Array.isArray(p.data))throw fail('درخواست تغییر معتبر نیست.')
-   const s=await state(),scope=await allowed(user,s),ids=new Set(scope.ids),manager=canManageTool(user,'deploymentplan'),data=p.data
-   const references=new Set();if(data.blockId){const b=s.blocks.find(b=>b.id===data.blockId);if(b)references.add(b.obligationId)}
-   for(const id of [data.id,...(Array.isArray(data.ids)?data.ids:[])].filter(Boolean)){const a=s.allocations.find(a=>a.id===id);if(a)references.add(a.obligationId);const r=s.requests.find(r=>r.id===id);if(r)references.add(r.before.obligationId);const c=planView(s,[...ids],today(clock())).conflicts.find(c=>c.id===id);if(c?.obligationId)references.add(c.obligationId)}
+   if(p.action==='settings'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);send(res,200,await update(user,p.revision,(draft,current)=>applyCommand(draft,p.action,p.data,current,{manager:true,now:clock()})));return true}
+   const s=await state(),manager=canManageTool(user,'deploymentplan'),data=p.data
+   const references=new Set();for(const blockId of [data.blockId,...(Array.isArray(data.items)?data.items.map(item=>item?.blockId):[])].filter(Boolean)){const b=s.blocks.find(b=>b.id===blockId);if(b)references.add(b.obligationId)}
+   for(const id of [data.id,...(Array.isArray(data.ids)?data.ids:[])].filter(Boolean)){const a=s.allocations.find(a=>a.id===id);if(a)references.add(a.obligationId);const r=s.requests.find(r=>r.id===id);if(r)references.add(r.before.obligationId);const c=planView(s,Object.keys(s.obligations),today(clock())).conflicts.find(c=>c.id===id);if(c?.obligationId)references.add(c.obligationId)}
    if(data.projectId)for(const o of Object.values(s.obligations).filter(o=>o.projectId===data.projectId))references.add(o.id)
-   if([...references].some(id=>!ids.has(id)))throw fail('به یکی از منابع CRM این عملیات دسترسی ندارید.',403)
-   if(data.customerId&&!Object.values(s.obligations).some(o=>o.customerId===data.customerId&&ids.has(o.id)))throw fail('مشتری در دامنهٔ مجاز فعلی نیست.',403)
+   if(data.customerId){const source=Object.values(s.obligations).find(o=>o.customerId===data.customerId);if(!source)throw fail('مشتری در دامنهٔ مجاز فعلی نیست.',403);references.add(source.id)}
+   if(references.size){const r=await reader(user),meta=await metadata(user,r),ids=new Set(await authorizeIds(r,meta,[...references]));if([...references].some(id=>!ids.has(id)))throw fail('به یکی از منابع CRM این عملیات دسترسی ندارید.',403)}
    try{send(res,200,await update(user,p.revision,(draft,current)=>applyCommand(draft,p.action,data,current,{manager,now:clock()})))}catch(e){if(e.status===409&&e.details?.warnings){send(res,409,{error:e.message,warnings:e.details.warnings});return true}throw e}return true
   }
   throw fail('مسیر ابزار پیدا نشد.',404)
