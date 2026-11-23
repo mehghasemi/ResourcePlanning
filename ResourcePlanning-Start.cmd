@@ -7,5 +7,5 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node "%~dp0tools\manage.mjs" start %*
+node "%~dp0tools\manage.mjs" start --live %*
 if errorlevel 1 pause
