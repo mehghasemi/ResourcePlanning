@@ -46,7 +46,7 @@ export function createDeploymentplanHttp({root,store,repository,send,bodyJson,re
   if(req.method==='POST'&&action==='command'){
    const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['revision','action','data'].includes(k))||!Number.isSafeInteger(p.revision)||typeof p.action!=='string'||!p.data||typeof p.data!=='object'||Array.isArray(p.data))throw fail('درخواست تغییر معتبر نیست.')
    if(p.action==='settings'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);send(res,200,await update(user,p.revision,(draft,current)=>applyCommand(draft,p.action,p.data,current,{manager:true,now:clock()})));return true}
-   const s=await state(),manager=canManageTool(user,'deploymentplan'),data=p.data
+   const s=await state(),manager=canManageTool(user,'deploymentplan'),data=p.data;if(p.revision!==s.revision)throw fail('برنامه هم‌زمان تغییر کرده؛ فرم را دوباره باز کنید.',409)
    const references=new Set();for(const blockId of [data.blockId,...(Array.isArray(data.items)?data.items.map(item=>item?.blockId):[])].filter(Boolean)){const b=s.blocks.find(b=>b.id===blockId);if(b)references.add(b.obligationId)}
    for(const id of [data.id,...(Array.isArray(data.ids)?data.ids:[])].filter(Boolean)){const a=s.allocations.find(a=>a.id===id);if(a)references.add(a.obligationId);const r=s.requests.find(r=>r.id===id);if(r)references.add(r.before.obligationId);const c=planView(s,Object.keys(s.obligations),today(clock())).conflicts.find(c=>c.id===id);if(c?.obligationId)references.add(c.obligationId)}
    if(data.projectId)for(const o of Object.values(s.obligations).filter(o=>o.projectId===data.projectId))references.add(o.id)
