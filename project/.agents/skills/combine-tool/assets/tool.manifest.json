@@ -1,0 +1,16 @@
+{
+  "schema": "combine.tool-draft/1",
+  "id": "example",
+  "title": "ابزار نمونه",
+  "description": "",
+  "version": null,
+  "pageRoute": "/example/",
+  "apiPrefix": "/api/example/",
+  "icon": "public/example-icon.svg",
+  "entry": "example-http.mjs",
+  "files": ["example-http.mjs", "public/example.html", "public/example-icon.svg"],
+  "roles": {"allowed": ["none", "user"], "default": "none"},
+  "crm": {"mode": "none", "connection": "organization", "operations": []},
+  "requires": {"coreApi": null, "components": {}, "runtimeDependencies": []},
+  "dataChanges": {"required": false, "plan": null, "rollback": null}
+}

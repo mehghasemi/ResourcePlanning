@@ -1,0 +1,6 @@
+interface:
+  display_name: "توسعه و رابط مشترک Combine"
+  short_description: "Modify Combine tools with the approved shared UI"
+  default_prompt: "با $combine-ui تغییر درخواستی ابزار را با حفظ قراردادهای فعلی و طراحی مصوب Combine پیاده‌سازی و بررسی کن."
+policy:
+  allow_implicit_invocation: true

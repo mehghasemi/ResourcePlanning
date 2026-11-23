@@ -1,0 +1,17 @@
+{
+  "name": "barid-knowledge-hub",
+  "version": "1.9.01",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env --env-file=.env.local deployment/development-source-host.mjs",
+    "sync": "node --env-file=.env --env-file=.env.local sync.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@notionhq/client": "^5.26.0"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}

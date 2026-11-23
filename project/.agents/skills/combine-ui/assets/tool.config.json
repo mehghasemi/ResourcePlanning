@@ -1,0 +1,13 @@
+{
+  "id": "example",
+  "title": "ابزار نمونه",
+  "description": "توضیح کوتاه کاربرد ابزار",
+  "icon": "building",
+  "navigation": [
+    {"id": "overview", "title": "نمای کلی", "icon": "home"},
+    {"id": "records", "title": "اطلاعات", "icon": "building", "children": [
+      {"id": "list", "title": "فهرست", "icon": "search"},
+      {"id": "history", "title": "سوابق", "icon": "calendar"}
+    ]}
+  ]
+}

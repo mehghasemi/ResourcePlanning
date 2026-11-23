@@ -1,0 +1,7 @@
+const $=id=>document.getElementById(id)
+async function api(url,body,method=body?'POST':'GET'){const res=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'}),v=await res.json();if(!res.ok)throw Error(v.error||'درخواست انجام نشد.');return v}
+const info=await api('/dev/info');$('mode').textContent=info.synthetic?'اجرای نمونه؛ همهٔ مشتریان، تعهدات، کارشناسان و برنامه‌ها ساختگی‌اند. برای بررسی CRM واقعی، ابتدا Stop.cmd و سپس Start-Live-CRM.cmd را اجرا کنید.':'اجرای واقعی CRM با حساب خودتان؛ دادهٔ نمونه در این اجرا وجود ندارد.'
+if(!info.synthetic){$('connection').hidden=false;const paint=v=>{$('username').value=v.username||'';$('result').textContent=v.crm?.state==='connected'?'اتصال تأیید شده: '+v.crm.identity:'CRM متصل نیست.'};try{paint(await api('/api/account/organization'))}catch(e){$('result').textContent=e.message}
+ $('form').onsubmit=async e=>{e.preventDefault();$('save').disabled=true;$('result').textContent='در حال بررسی هویت و اتصال…';try{paint(await api('/api/account/organization',{username:$('username').value,password:$('password').value,crm:true,calendar:false}));$('password').value=''}catch(e){$('result').textContent=e.message}finally{$('password').value='';$('save').disabled=false}}
+ $('disconnect').onclick=async()=>{try{paint(await api('/api/account/organization',{},'DELETE'))}catch(e){$('result').textContent=e.message}}
+}

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "coreVersion": "1.9.01",
+  "coreApi": 1,
+  "components": {
+    "contracts": "1.9.01",
+    "reports": "1.8.19",
+    "tariff": "1.8.6",
+    "market": "1.8.161",
+    "chat": "1.8.232",
+    "pricing": "1.8.23",
+    "crm": "1.8.231",
+    "home": "1.8.24",
+    "coordination": "1.8.303",
+    "marketing": "1.8.30",
+    "presentation": "0.0.0",
+    "support": "0.0.0",
+    "projectcontrol": "0.0.0",
+    "supportsales": "0.0.0",
+    "development": "1.9.01"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "component": "example",
+  "sourceVersion": null,
+  "coreApi": null,
+  "files": [
+    {"path": "platform/example-http.mjs", "access": "editable"},
+    {"path": "platform/public/example.html", "access": "editable"},
+    {"path": "platform/platform-access.mjs", "access": "reference"},
+    {"path": "platform/organization-account.mjs", "access": "reference"}
+  ],
+  "additionsUnder": ["platform/tools/example/", "platform/public/example/"]
+}

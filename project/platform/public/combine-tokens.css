@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light;
+  --ui-font: Dana, Tahoma, sans-serif;
+  --ui-primary: #3949a6;
+  --ui-primary-hover: #2c3988;
+  --ui-primary-soft: #eef0fc;
+  --ui-ink: #162442;
+  --ui-muted: #62708a;
+  --ui-line: #e4e9f3;
+  --ui-background: #f8fafd;
+  --ui-surface: #fff;
+  --ui-yellow: #f0c14e;
+  --ui-success: #24664d;
+  --ui-success-soft: #edf7f0;
+  --ui-warning: #805b18;
+  --ui-warning-soft: #fff7e5;
+  --ui-danger: #a53c49;
+  --ui-danger-soft: #fff0f2;
+  --ui-info: #315d8c;
+  --ui-info-soft: #edf5fc;
+  --ui-radius-control: 10px;
+  --ui-radius-card: 16px;
+  --ui-radius-dialog: 20px;
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-6: 24px;
+  --ui-space-8: 32px;
+  --ui-control-height: 40px;
+  --ui-header-height: 72px;
+  --ui-sidebar-width: 240px;
+  --ui-content-width: 1200px;
+  --ui-shadow: 0 16px 44px #16244214;
+  --ui-motion: 150ms ease;
+}

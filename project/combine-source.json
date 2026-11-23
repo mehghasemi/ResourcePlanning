@@ -1,0 +1,529 @@
+{
+  "schema": "combine.source/1",
+  "revision": "5c93aeed-def4-4dcf-9785-2824b3bb1612",
+  "component": "deploymentplan",
+  "sourceVersion": null,
+  "coreApi": 1,
+  "createdAt": "2026-11-23T05:44:14.355Z",
+  "additionsUnder": [
+    "platform/tools/deploymentplan/",
+    "platform/public/deploymentplan/"
+  ],
+  "additionPatterns": [
+    "platform/deploymentplan-*.mjs",
+    "platform/public/deploymentplan-*.mjs",
+    "platform/public/deploymentplan-*.js",
+    "platform/public/deploymentplan-*.css",
+    "platform/public/deploymentplan-*.svg"
+  ],
+  "files": {
+    ".agents/skills/combine-release/agents/openai.yaml": {
+      "access": "reference",
+      "sha256": "ff8d7fee23a60db55e2c91d6216e002c15d910582b9bfa5809ab46af2df45760"
+    },
+    ".agents/skills/combine-release/assets/source-selection.example.json": {
+      "access": "reference",
+      "sha256": "bd26c99b0794e61f5d90ade9e0cb6ebf0ee5ee3b4fffe445633dacaa252f0fa9"
+    },
+    ".agents/skills/combine-release/references/development-submissions.md": {
+      "access": "reference",
+      "sha256": "0ab76d5b340d8319302ac139c79e2265f4d80e1ca9f169a7e85d053134c24147"
+    },
+    ".agents/skills/combine-release/references/package-routes.md": {
+      "access": "reference",
+      "sha256": "7767e843c106dd330dcdd4442e004e09d80a82683af6a5460708caeba780d60b"
+    },
+    ".agents/skills/combine-release/scripts/development-bundle.mjs": {
+      "access": "reference",
+      "sha256": "22c4a7bc1c3893de1e11c26a5f9e2449d15ee22af16de83c530e7f9d0d0d8939"
+    },
+    ".agents/skills/combine-release/scripts/development-bundle.test.mjs": {
+      "access": "reference",
+      "sha256": "45f66854a6ac70d5d854715af74675114924908de4d412b53ce53af9f5613a7c"
+    },
+    ".agents/skills/combine-release/scripts/inspect-changes.mjs": {
+      "access": "reference",
+      "sha256": "950f5b0914117418d6b27f4c216eb7e36fccf914f160ec5aac25439e17622435"
+    },
+    ".agents/skills/combine-release/SKILL.md": {
+      "access": "reference",
+      "sha256": "8b0e26b3bd75fde46865db710d8e1755d1465bb0b7216f01f4fd67136d4b5f93"
+    },
+    ".agents/skills/combine-tool/agents/openai.yaml": {
+      "access": "reference",
+      "sha256": "cf2ad655d8a4201a5ebb5ecce7a9ccf79ac365911a4b91bdaf3b3e03c722d890"
+    },
+    ".agents/skills/combine-tool/assets/DEVELOPMENT-GUIDE-FA.md": {
+      "access": "reference",
+      "sha256": "c03c357132ef3e25e6f9ab266681f81f990e0b20701c2a6f33ac7e21f0357cf0"
+    },
+    ".agents/skills/combine-tool/assets/kit-AGENTS.md": {
+      "access": "reference",
+      "sha256": "d9934650bba396307ebc23b3278e1040ea4696a241925bc45d0bd47407049770"
+    },
+    ".agents/skills/combine-tool/assets/requirements-fa.md": {
+      "access": "reference",
+      "sha256": "197e448713cc0137d518d9bd5495582e80e79f3d996f5c20649ed5391a593d0f"
+    },
+    ".agents/skills/combine-tool/assets/tool-crm.mjs": {
+      "access": "reference",
+      "sha256": "ee10aeb04e2b5d7fc0ec20e4caf6cb560da3d771d99dd8952aaa0a01d5de0d13"
+    },
+    ".agents/skills/combine-tool/assets/tool-http.mjs": {
+      "access": "reference",
+      "sha256": "8e3f9d1cec6a96772f07c414e44702392a755a910df7d322531f1ea68aa8cc32"
+    },
+    ".agents/skills/combine-tool/assets/tool.manifest.json": {
+      "access": "reference",
+      "sha256": "0251f28f169c7965f2944a9bf14b50b75765430da59cc704f164e17ba73b28b3"
+    },
+    ".agents/skills/combine-tool/references/crm-integration.md": {
+      "access": "reference",
+      "sha256": "1501bab27e05f447a2385c836ccd454191c85cb78df6626bf169d1fd97ce7fdf"
+    },
+    ".agents/skills/combine-tool/references/developer-workflow-fa.md": {
+      "access": "reference",
+      "sha256": "1464e8c17eaeaed52acacf5f7686e10506892a334ee1391785e03953fb1de600"
+    },
+    ".agents/skills/combine-tool/references/extension-development.md": {
+      "access": "reference",
+      "sha256": "be5ab98060c4e0c9a56b5c3f161e4fb64bed5f122a6f575fe0a14b1bcf2f7336"
+    },
+    ".agents/skills/combine-tool/references/tool-contract.md": {
+      "access": "reference",
+      "sha256": "7a6f31afb4f21bdf5e6db2a598011ba17361c58448591398a43445cac28fc76f"
+    },
+    ".agents/skills/combine-tool/scripts/build-development-kit.mjs": {
+      "access": "reference",
+      "sha256": "1aa4aaecdc0604cbab6242e2308e87c06ad8fe63ef09c170bc31533f40dea422"
+    },
+    ".agents/skills/combine-tool/scripts/create-tool.mjs": {
+      "access": "reference",
+      "sha256": "e82957b627b183ec1996bf242f4849d3f6ca78af3a244d856bd6a594d8d2e523"
+    },
+    ".agents/skills/combine-tool/scripts/templates.test.mjs": {
+      "access": "reference",
+      "sha256": "e6c01c1ab1934b44d97b96ea309683e331ff9723c03311ab3f3970c20c467d5d"
+    },
+    ".agents/skills/combine-tool/SKILL.md": {
+      "access": "reference",
+      "sha256": "04d06861580b51a47e504e02807e514957278f50a6bce92b63e64d874741993a"
+    },
+    ".agents/skills/combine-ui/agents/openai.yaml": {
+      "access": "reference",
+      "sha256": "7964b8d92299c1b3c1a28672115185c38566b3689639be6a47953729b224d7ed"
+    },
+    ".agents/skills/combine-ui/assets/app.js": {
+      "access": "reference",
+      "sha256": "4c28d1c5ffef15c04b92fd765f1e0391fcf868118d659d151871cd656f0aa27d"
+    },
+    ".agents/skills/combine-ui/assets/page.html": {
+      "access": "reference",
+      "sha256": "ad65a933d439731a9cb5435fcac43da6374882dbace78bbec99ca31427fcc1e4"
+    },
+    ".agents/skills/combine-ui/assets/shell.css": {
+      "access": "reference",
+      "sha256": "c9efa6da8e2b5ee31ce4b4307c2be71d4228769e8aa9a1eecbf6848887eab095"
+    },
+    ".agents/skills/combine-ui/assets/shell.js": {
+      "access": "reference",
+      "sha256": "7dcf1ff5d02576bb54e50160e0ec8dfa08f9403d0c30ee5daa92730ccbad3519"
+    },
+    ".agents/skills/combine-ui/assets/tool.config.json": {
+      "access": "reference",
+      "sha256": "a1d2eb1b710e0af165122bb81e7f4de141ad1c552bef51013d7b98371803add1"
+    },
+    ".agents/skills/combine-ui/references/integration.md": {
+      "access": "reference",
+      "sha256": "8f89ce2a01ee90ca9a34ad453280e363e4366e4cbf27dd3623c453d3dcff8507"
+    },
+    ".agents/skills/combine-ui/scripts/scaffold.mjs": {
+      "access": "reference",
+      "sha256": "74eaf4a169008a3207c8e3bcb610fec9ae23bd87ebd2f97f991d4c3c2f70d897"
+    },
+    ".agents/skills/combine-ui/SKILL.md": {
+      "access": "reference",
+      "sha256": "5be698bca2064c570d1f1c4287d1f168710fd784752a62b2d3e9e37fddbe1115"
+    },
+    "AGENTS.md": {
+      "access": "reference",
+      "sha256": "c5ba6ceef2ac036abaa176d2aa5557231d962ac4c12760b07e9e0a8ef4a4ffcc"
+    },
+    "combine-kit.json": {
+      "access": "reference",
+      "sha256": "50df2c3d192086787de8b5d45658c2cb813fe3e9cc428a67ddcc5f19f388eb94"
+    },
+    "design-system/components.css": {
+      "access": "reference",
+      "sha256": "15b9ea28dbb993c1242484d4bed6d4e6496d2a46ba96b5a58125c5203faa2f87"
+    },
+    "design-system/icons.svg": {
+      "access": "reference",
+      "sha256": "fb858b1ef0a8f6729dd8d0a97eae1cf9b14a876f94996e47a3a29c40079de063"
+    },
+    "design-system/STANDARD.md": {
+      "access": "reference",
+      "sha256": "aaab5b09b4c49c7f7e992198e8c5cbdbd3702cb69f22b772ce5ca8a940e37c58"
+    },
+    "design-system/tokens.css": {
+      "access": "reference",
+      "sha256": "5d97ff111fdb6f4ae67a7a85c589cae836487011068f8cbf2e9f8acc4e547645"
+    },
+    "dev/archive.mjs": {
+      "access": "reference",
+      "sha256": "be925d3768585c0ec576e47c34065fd14ee0752fa947e747c864202330b1c6c2"
+    },
+    "dev/home.html": {
+      "access": "reference",
+      "sha256": "f06f87c73cb9e7542f836a57c58d88d79201cdee61093fbcbaf02817f9118683"
+    },
+    "dev/home.mjs": {
+      "access": "reference",
+      "sha256": "f57c0142d35857c30ec1c6aa250231d9f57f6581425e57d55db2155a7dd01da3"
+    },
+    "dev/host.mjs": {
+      "access": "reference",
+      "sha256": "0b861f0fb5a4f4c1e48154f2ff4696933cbfc992bab176f79c2429fe33f2e0e8"
+    },
+    "dev/host.test.mjs": {
+      "access": "reference",
+      "sha256": "fc854f405a3a8eaf6e0097564aca3009f8e4d76158629dd122aad4141d1c2c2a"
+    },
+    "dev/local.css": {
+      "access": "reference",
+      "sha256": "2cad6667a69c0ce84c896deefa76acc4f9990e5fd2fc527d41bd3bb17f13b79a"
+    },
+    "dev/overlay.mjs": {
+      "access": "reference",
+      "sha256": "2c884976eb0d73a9db78359cd999f19b5e2785d3f24216452ad1016d956eaf42"
+    },
+    "dev/sample.mjs": {
+      "access": "reference",
+      "sha256": "bdc79c680fea9a6edb478ff58daf19f6a0e7be39ba1be7759929a84bc1b1dc7e"
+    },
+    "DEVELOPMENT-GUIDE-FA.md": {
+      "access": "reference",
+      "sha256": "c03c357132ef3e25e6f9ab266681f81f990e0b20701c2a6f33ac7e21f0357cf0"
+    },
+    "DEVELOPMENT-RETURN-FA.md": {
+      "access": "reference",
+      "sha256": "0b623c2a719196fc8f1a5da9a35b936437348cc0b7ebd487f21a449e75c81ef7"
+    },
+    "GPT-PROMPT-FA.txt": {
+      "access": "reference",
+      "sha256": "19f34c21c0aaede4a5d82aaa6a4c5462ba66504c985062e1f873d55394a00704"
+    },
+    "LOCAL-DEVELOPMENT-FA.md": {
+      "access": "reference",
+      "sha256": "2ef1c692aaa1132ec7574519136be2cf8a357db7e3c4d094721cd1f7179c0cc7"
+    },
+    "package.json": {
+      "access": "reference",
+      "sha256": "60ed3d67e9d7999a76e8ef971709cc19dbee77214a29f53fc589af338666f901"
+    },
+    "platform/account-context.mjs": {
+      "access": "reference",
+      "sha256": "b3f5cb8a9772e29f097207fa1b3c955c718ddd959410e790d574849b6d0a81c0"
+    },
+    "platform/accounts.mjs": {
+      "access": "reference",
+      "sha256": "65f32bd5b832df01d747aad27ee4948770234c0b6ca1c436eedeaed82c720058"
+    },
+    "platform/avatar.mjs": {
+      "access": "reference",
+      "sha256": "f1c49110a0bf56f698612684a43eb77cb198789d93a4272f357c29817efe77dd"
+    },
+    "platform/chat-cancellation.mjs": {
+      "access": "reference",
+      "sha256": "fe7b32a0494bcb90e9f1c60e971b8f76d99408852d0473af618318838ff0ffb1"
+    },
+    "platform/component-catalog.mjs": {
+      "access": "reference",
+      "sha256": "1a2125e8316bb98d6917623eb503ed21149c0c5ba2acaef94d73c152ce7b2bfb"
+    },
+    "platform/component-status.mjs": {
+      "access": "reference",
+      "sha256": "0119adf91e67e142cf2426fa5d817b6cf62fd8a67935bd35d5535c64f7495339"
+    },
+    "platform/component-versions.json": {
+      "access": "reference",
+      "sha256": "02ac953cbf86560c2fc442278ca538646c0b6f144999fb55c8edaff1ae0f4089"
+    },
+    "platform/coordination-access.mjs": {
+      "access": "reference",
+      "sha256": "fc7c1935699e81fd70ac0223a771d5de460668aca0efbb222393a32299eddb5e"
+    },
+    "platform/crm-profile.mjs": {
+      "access": "reference",
+      "sha256": "967ae85dd14994d8cdd6aa571980109c9825056542f8a0ca832c5483bc92316f"
+    },
+    "platform/crm-read-policy.mjs": {
+      "access": "reference",
+      "sha256": "5d815b0232fc66b4b855396e733e2bff8c21b2cdd327098644ad00ac1190c564"
+    },
+    "platform/crm-user.mjs": {
+      "access": "reference",
+      "sha256": "8864f17e7ac3e7d4b82391f03e3b81f7afc577c33cc16428d5b00233dc3e8c95"
+    },
+    "platform/dashboard-access.mjs": {
+      "access": "reference",
+      "sha256": "557046ab60f3196caadff8d4d76488676ade767e3c0d4d25cf9c35aeac42afaf"
+    },
+    "platform/dashboard-cache.mjs": {
+      "access": "reference",
+      "sha256": "c9c6cdc8aa2d4dd317e65d02600e93a4662ce0bc507af4c423490a382e4cb07d"
+    },
+    "platform/dashboard-changes.mjs": {
+      "access": "reference",
+      "sha256": "187e6453dbf33313d9e13b51856451861362ee5c1a5e186b503b749aa8bbf368"
+    },
+    "platform/dashboard-chunk-store.mjs": {
+      "access": "reference",
+      "sha256": "0d66bd841ec077493d822ed0eac2fb4ee0ee4f8256d9868ada12ef68272483b0"
+    },
+    "platform/dashboard-diagnostics.mjs": {
+      "access": "reference",
+      "sha256": "d362ab47be7bf50fe894fd0ac53a74c4a34303a6877419d7339174a3ca550b8d"
+    },
+    "platform/dashboard-index.mjs": {
+      "access": "reference",
+      "sha256": "9b67bdb86e2e9f3f8ec659d6f1531241d5f9cf29c63d34c8c158d53c51ca9a7c"
+    },
+    "platform/dashboard-parts.mjs": {
+      "access": "reference",
+      "sha256": "43365999520b095b8d7c167f2dbcbb44d0d6ff7033013aa8891338e22ba2b09d"
+    },
+    "platform/deploymentplan-crm.mjs": {
+      "access": "editable",
+      "sha256": "9a0d0fe3690346ad3bf396c7e8b13c2977f24f4c8edeb2ddced8434f05d47e62"
+    },
+    "platform/deploymentplan-crm.test.mjs": {
+      "access": "editable",
+      "sha256": "e623ae6ea55553caa38bb2c9a14499f84c7994c54b5cdc54e211feb2691582ce"
+    },
+    "platform/deploymentplan-engine.mjs": {
+      "access": "editable",
+      "sha256": "8d9e7ab8cc73fbb8fba23a2587c7e415f2f6ea8e7ff3e82714fd2b76f8c5394f"
+    },
+    "platform/deploymentplan-engine.test.mjs": {
+      "access": "editable",
+      "sha256": "65460217efb05bd21a9ee82fb1900c1676228d56877cb74d4e85460e55e3836c"
+    },
+    "platform/deploymentplan-http.mjs": {
+      "access": "editable",
+      "sha256": "413d108f3fe92e24ee6ab7b18b3fdb875cb8fde1bbb547cfab9806618bb0716e"
+    },
+    "platform/deploymentplan-http.test.mjs": {
+      "access": "editable",
+      "sha256": "5bf4d7f0bbea4d2b8db1ebb554f5a4a1f657fff3c3f856581430df12953709a9"
+    },
+    "platform/deploymentplan-import.mjs": {
+      "access": "editable",
+      "sha256": "c0f2524751bd8ccc5c45476f87c4a9796d24ea73575e7192566212498d58403c"
+    },
+    "platform/deploymentplan-import.test.mjs": {
+      "access": "editable",
+      "sha256": "cc2e26d49abe6a73487eaba7537e5c491186dc5251e91f9e58d577a4238df760"
+    },
+    "platform/deploymentplan-reconciliation.mjs": {
+      "access": "editable",
+      "sha256": "67ea22dca3f123bffd1a2a857002cdb23ee1ffe368c757c38550a8ebae4650b8"
+    },
+    "platform/deploymentplan-reconciliation.test.mjs": {
+      "access": "editable",
+      "sha256": "2fa791efa7dc7c72be72739f55c0431b08fc871a22ab739ef570b36ba9a0caae"
+    },
+    "platform/extension-registry.mjs": {
+      "access": "reference",
+      "sha256": "6502264004ff60fe93a553617699423195cce1399886fdf5537bd4f7209b2c63"
+    },
+    "platform/history.mjs": {
+      "access": "reference",
+      "sha256": "2a431425e12836173307d6d8c24e17135bca74bdb101bd4c6aa3b2f708c05b4a"
+    },
+    "platform/home.mjs": {
+      "access": "reference",
+      "sha256": "46d667494a4dbcb4e31eae08216be19d63c2e88da37e89291f88d4d26c5e53ec"
+    },
+    "platform/market-access.mjs": {
+      "access": "reference",
+      "sha256": "c4b7e85702458afbfb2c6586bfd94fb1b17d787b997844218344adfcb2eef31b"
+    },
+    "platform/organization-account.mjs": {
+      "access": "reference",
+      "sha256": "9880440e2f8564981857790085e7595fd88dee47bb3d91700db05c5dfcfd6a76"
+    },
+    "platform/organization-account.test.mjs": {
+      "access": "reference",
+      "sha256": "940d88c6fe8df42699ff9e2e3baa0c12e880e13272f847193ce1c26db5c1083d"
+    },
+    "platform/organization-http.mjs": {
+      "access": "reference",
+      "sha256": "958579ab8ba65a9cf876d5fd5ffbd2374505e29071d5fd843f9322d5068bdc30"
+    },
+    "platform/organization-reader.mjs": {
+      "access": "reference",
+      "sha256": "9efee8adb0996b775aaf3b4d20cf27f29a9ab53515d7e7b46cfd9ce2e3d2e8e2"
+    },
+    "platform/platform-access.mjs": {
+      "access": "reference",
+      "sha256": "658986fd891b89c9730e1c5b4a88508218e93bb90952163b65128444cd844f97"
+    },
+    "platform/pricing-access.mjs": {
+      "access": "reference",
+      "sha256": "e89e12e3aa10b916ff00899d95aa1fd1c2430ae81935a49b7a6f2b275725467e"
+    },
+    "platform/public/account.css": {
+      "access": "reference",
+      "sha256": "4ce4bdf6733b6490796f3005c39459d97138fa92f8ed8798bbee414baf7ac688"
+    },
+    "platform/public/calendar-links.mjs": {
+      "access": "reference",
+      "sha256": "a52a37eb10493054d26baa3c0c4eaf464887642ce6c4dfbc8cde13a62327abd4"
+    },
+    "platform/public/change-password.mjs": {
+      "access": "reference",
+      "sha256": "39246ecfd28a4deb3645fed79c87a1914f2d48fbf6a99a042f60e6422441c82f"
+    },
+    "platform/public/chat-sources.mjs": {
+      "access": "reference",
+      "sha256": "61dba64a1de1837c122e619348b58c3d94dcfc8f74df652bf7e6d8f5cfd898d6"
+    },
+    "platform/public/combine-components.css": {
+      "access": "reference",
+      "sha256": "15b9ea28dbb993c1242484d4bed6d4e6496d2a46ba96b5a58125c5203faa2f87"
+    },
+    "platform/public/combine-icons.svg": {
+      "access": "reference",
+      "sha256": "fb858b1ef0a8f6729dd8d0a97eae1cf9b14a876f94996e47a3a29c40079de063"
+    },
+    "platform/public/combine-shell.css": {
+      "access": "reference",
+      "sha256": "9ad9df78ea197d83bffc83f13744f244546f80f2774d64c076ba08bed3f73dce"
+    },
+    "platform/public/combine-shell.js": {
+      "access": "reference",
+      "sha256": "5903de742ad0fcbba33afe7c866b4ad5729c46dc4c5d9205e03bdce600a9b98c"
+    },
+    "platform/public/combine-tokens.css": {
+      "access": "reference",
+      "sha256": "5d97ff111fdb6f4ae67a7a85c589cae836487011068f8cbf2e9f8acc4e547645"
+    },
+    "platform/public/deploymentplan-icon.svg": {
+      "access": "editable",
+      "sha256": "fc57d07cb5fd21f17f2e1064403774345798bcc01675095c8ed247033d6b213b"
+    },
+    "platform/public/deploymentplan-ui.mjs": {
+      "access": "editable",
+      "sha256": "46f56503273283ca3fde47902b61de4b12c8dd4fc0bf3c747294d8e6858a9f2b"
+    },
+    "platform/public/deploymentplan-view.mjs": {
+      "access": "editable",
+      "sha256": "7391af7ce2530c314f2d2e51063ca5ca5e1331c6e76d2e99dd22e9ce9b98d706"
+    },
+    "platform/public/deploymentplan.css": {
+      "access": "editable",
+      "sha256": "2ae51104cf9f024acaaee0226ed035c2019e9b325a429361da532857790d7317"
+    },
+    "platform/public/deploymentplan.html": {
+      "access": "editable",
+      "sha256": "b65796da2f5c342051eca6511bf01892d238f6f759ed276652108d964205eaf2"
+    },
+    "platform/public/fonts/Dana-Bold.woff2": {
+      "access": "reference",
+      "sha256": "dc17c884dc6e8a1c70cafce74c15270eda5057a64562bd957cf0e946aa896363"
+    },
+    "platform/public/fonts/Dana-Regular.woff2": {
+      "access": "reference",
+      "sha256": "db1960ccd860e54703b9aac23f115c08343185200ca39049d04e0887bf93d15c"
+    },
+    "platform/public/header-menus.css": {
+      "access": "reference",
+      "sha256": "d0aa44b66efa06fa828469184bd98e79c938c3fcc1e58b0997f408d0602b8625"
+    },
+    "platform/public/header-menus.mjs": {
+      "access": "reference",
+      "sha256": "483ac947b029fdad46e5e329ab6458e3491848330d366368e1c7737f214ba01f"
+    },
+    "platform/public/logout.mjs": {
+      "access": "reference",
+      "sha256": "407fd68af6f6ad10718fa7d5e31ebc6fc1e9aa7ea76bb7ce1d6a8329feecd081"
+    },
+    "platform/public/password-fields.mjs": {
+      "access": "reference",
+      "sha256": "b3d9001d9b7e0c4a2bd535671588a82eb543e1a077f4ac133edae0b025bec0c2"
+    },
+    "platform/public/persian-date-picker.mjs": {
+      "access": "reference",
+      "sha256": "f3d573c34a4dc37f5f155ee96efb8dde8324c817be9401b23c7adc287a4fb76e"
+    },
+    "platform/public/usage-period.mjs": {
+      "access": "reference",
+      "sha256": "a2255f7837692ffcba91d39c18e17756da60ae1ebed049504c13ac8a66ba9cfa"
+    },
+    "platform/public/workspace-summary.mjs": {
+      "access": "reference",
+      "sha256": "be4b47d16b49b9efb04a5368dbdbd775049d2061b02c784bb03882a3bc560aef"
+    },
+    "platform/quota-credit.mjs": {
+      "access": "reference",
+      "sha256": "572edb9252420c069f42ec4957f4a24a5b4bcbb27454ec400a30815fcc4f159b"
+    },
+    "platform/tools/deploymentplan/Codex_Guide.md": {
+      "access": "reference",
+      "sha256": "66ee926cae5407ce05c7339e0433687586741ed44c4c692d11af1587ea3ebd5d"
+    },
+    "platform/tools/deploymentplan/Deployment_FRD_v2.0.md": {
+      "access": "reference",
+      "sha256": "5f462cf9c759e9e20285219c4cd00c67118e01bad7e88160b56429026b767b47"
+    },
+    "platform/tools/deploymentplan/README.md": {
+      "access": "reference",
+      "sha256": "139e58ef87cee4bcc132c85272062a0d67fe6ccaf6eef5363a286aff3ae78b10"
+    },
+    "platform/usage-report.mjs": {
+      "access": "reference",
+      "sha256": "d7190979cb571bae5e6c73fe4dfb42c4f668dd3af116e919a9cd7aab9bdb09bd"
+    },
+    "platform/usage-review.mjs": {
+      "access": "reference",
+      "sha256": "4f38aebdaaf6ad4464b17928b603fce59892b5c900c2252782a805db9cf166fd"
+    },
+    "platform/widget-runtime/formats.mjs": {
+      "access": "reference",
+      "sha256": "c40b3ca69824d7980dba35a8ff134f7d8db989bfe7fd9d22be0c0c64cea00ace"
+    },
+    "platform/workspace-connectors.mjs": {
+      "access": "reference",
+      "sha256": "b68d2bc8b7c4d281d4343887f1360e3c33449758a799f604889d46233eff9ffe"
+    },
+    "platform/workspace-store.mjs": {
+      "access": "reference",
+      "sha256": "d14bb67411ba3b7c244e8179e14b7e4d8ac13dadec59a67dcc69770207167c06"
+    },
+    "PROJECT-MAP.md": {
+      "access": "reference",
+      "sha256": "3c4d8f7c168d620601ad08495f19b3dc93a7d7d80c251bde62286049cec9c64f"
+    },
+    "reference/platform-package.json": {
+      "access": "reference",
+      "sha256": "59d0905178357ba483b3af5652679361ca459128ca32c582dbfa884405eae818"
+    },
+    "reference/ui/home.css": {
+      "access": "reference",
+      "sha256": "3bf330ddc363f9314f5a944063d1db9759940f04ebe68a8e1a37eededab1e09d"
+    },
+    "reference/ui/home.html": {
+      "access": "reference",
+      "sha256": "6de8091fbd94a3ad3b9e8504c0cfb85ef8205084cdb39de522b2aae91bb5bd58"
+    },
+    "reference/ui/market-shell.css": {
+      "access": "reference",
+      "sha256": "a53a220959c0842c2d7774b695114cbab3a35f501df74c7275c9c0ea8d4016db"
+    },
+    "reference/ui/market.html": {
+      "access": "reference",
+      "sha256": "8cadcd7ac3288b957f274b700450f4d2168afb85a1d7aa53e20edf961b637d28"
+    }
+  }
+}

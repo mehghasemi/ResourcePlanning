@@ -1,0 +1,12 @@
+{
+  "name": "combine-deploymentplan-local-development",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dev/host.mjs",
+    "test": "node --test platform/deploymentplan-engine.test.mjs platform/deploymentplan-crm.test.mjs platform/deploymentplan-http.test.mjs platform/deploymentplan-import.test.mjs platform/deploymentplan-reconciliation.test.mjs platform/organization-account.test.mjs dev/host.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}
