@@ -1,8 +1,9 @@
 راهنمای تصویری: README-FA.html
-شروع: Start.cmd
+اجرای آزمایشی: ResourcePlanning-Test-Sample-Start.cmd
+اجرای متصل به CRM: ResourcePlanning-Live-CRM-Start.cmd
 متن آمادهٔ GPT: GPT-PROMPT-FA.txt
 راهنمای کامل: project/LOCAL-DEVELOPMENT-FA.md
-توقف: Stop.cmd
-بررسی: Verify.cmd
-تحویل تغییرات: Build-Return.cmd --notes changes.txt
-دادهٔ نمونه ساختگی است؛ برای CRM واقعی از Start-Live-CRM.cmd و حساب خودتان استفاده کنید.
+توقف: ResourcePlanning-Stop.cmd
+بررسی توسعه: node tools/manage.mjs verify
+تحویل تغییرات: node tools/manage.mjs return --notes changes.txt
+دادهٔ نمونه ساختگی است؛ برای CRM واقعی از فایل اجرای متصل به CRM و حساب خودتان استفاده کنید.
