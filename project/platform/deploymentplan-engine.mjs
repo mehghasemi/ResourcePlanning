@@ -56,7 +56,7 @@ export function customerColor(s,customerId){return s.colors[customerId]||['#e4f1
 export function allocationStage(s,a,date){const o=s.obligations[a.obligationId],p=projectPlan(s,o.projectId);return p.effective?(date>=p.effective?'after':'before'):p.stage}
 export function applySnapshot(s,rows,user,at,{referenceIds=[]}={}){
  archiveWeeks(s,at)
- if(!Array.isArray(rows)||rows.some(o=>!o.id||!kinds.includes(o.kind)&&!s.obligations[o.id]||o.sizeUnits!==null&&(!Number.isSafeInteger(o.sizeUnits)||o.sizeUnits<0)))throw fail('دادهٔ CRM معتبر نیست؛ برنامهٔ قبلی حفظ شد.',502)
+ if(!Array.isArray(rows)||rows.some(o=>!o.id||o.sizeUnits!==null&&(!Number.isSafeInteger(o.sizeUnits)||o.sizeUnits<0)))throw fail('دادهٔ CRM معتبر نیست؛ برنامهٔ قبلی حفظ شد.',502)
  const seen=new Set();for(const row of rows){if(seen.has(row.id))throw fail('شناسهٔ تکراری در پاسخ CRM؛ داده اعمال نشد.',502);seen.add(row.id)}
  let changed=0;const references=new Set(referenceIds)
  for(const row of rows){const before=s.obligations[row.id];if(!before&&(!kinds.includes(row.kind)||!openStatuses.includes(row.status)||row.closed)&&!references.has(row.id))continue;const next={...copy(row),readAt:at};if(!same(before&&Object.fromEntries(Object.entries(before).filter(([k])=>k!=='readAt')),row)){changed++;audit(s,user,'بازخوانی مرجع CRM',before,next,at,[row.id])}s.obligations[row.id]=next;rebuild(s,next)}
