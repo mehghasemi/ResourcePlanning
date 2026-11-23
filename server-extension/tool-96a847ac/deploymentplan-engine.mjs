@@ -20,6 +20,19 @@ const archived=(a,now)=>a.days.some(d=>week(d.date)<week(now))
 const noteActor=user=>({id:user.id,name:user.name})
 function audit(s,user,action,before,after,now,obligationIds=[]){s.audit.push({id:randomUUID(),at:now,actor:noteActor(user),action,before:copy(before??null),after:copy(after??null),obligationIds:[...new Set(obligationIds)]})}
 export function createPlanState(){return {schema:1,revision:0,experts:[],obligations:{},blocks:[],allocations:[],absences:[],requests:[],plans:{},colors:{},exceptions:{},archives:{},audit:[],settings:{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60},lastSync:null}}
+const initialExpertRoster=[
+ ['مهدی عبدالحسین زاده','Implementation'],['امیرحسین مغازه ئی','Implementation'],['سیدسهیل علم الهدائی','Implementation'],['امیر سلیمانی','Implementation'],['محمدمهدی هادی فر','Implementation'],['زهرا رسول شیرازی','Implementation'],['سیدحامد ابراهیم‌ پور','Implementation'],['علی اکبر فرج اللهی','Implementation'],['سجاد گودرزی','Implementation'],['محمد جعفری','Implementation'],['حسین آزادپور مطلق','Implementation'],['علیرضا فیضی','Implementation'],['مجید قمی','Implementation'],['حمید باقریان موحد','Implementation'],
+ ['مهران منصوری','Converter'],['امین حضوری','Converter'],['امیر امامی','Converter'],['جواد رهنما','Converter'],['محمد ارومیه','Converter']
+]
+export function seedInitialExperts(s,at=new Date().toISOString()){
+ if(s.initialRosterVersion>=1)return 0
+ const normalize=name=>name.normalize('NFKC').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\s\u200c]+/g,' ').trim()
+ const known=new Set(s.experts.map(e=>normalize(e.name))),added=[];let order=Math.max(0,...s.experts.map(e=>e.order||0))
+ for(const [name,kind] of initialExpertRoster){if(known.has(normalize(name)))continue;const expert={id:randomUUID(),name,kind,active:true,order:++order};s.experts.push(expert);added.push(expert);known.add(normalize(name))}
+ s.initialRosterVersion=1
+ if(added.length)audit(s,{id:'system',name:'سامانه'},'ثبت فهرست اولیهٔ کارشناسان',null,added,at)
+ return added.length
+}
 export function coverage(s,id){const o=s.obligations[id],assigned=sum(s.allocations.filter(a=>a.obligationId===id).map(units));return {required:o?.sizeUnits??null,assigned,missing:o?.sizeUnits==null?null:Math.max(0,o.sizeUnits-assigned),excess:o?.sizeUnits==null?null:Math.max(0,assigned-o.sizeUnits)}}
 function rebuild(s,o){
  const allocated=new Set(s.allocations.map(a=>a.blockId)),retained=s.blocks.filter(b=>b.obligationId===o.id&&allocated.has(b.id)),old=s.blocks.filter(b=>b.obligationId===o.id&&!allocated.has(b.id));s.blocks=s.blocks.filter(b=>b.obligationId!==o.id||allocated.has(b.id))
