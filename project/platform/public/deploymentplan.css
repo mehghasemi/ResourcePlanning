@@ -5,3 +5,13 @@
 .dp-source{border-style:dashed}.dp-source-link{display:block;background:none;border:0;color:var(--ui-muted);font:inherit;font-size:10px;padding:3px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.dp-source-issues{margin:12px 0;padding:12px 28px;background:#fff7e6;border-radius:10px;font-size:12px}.dp-source-issues li{margin:4px 0}.dp-source small{color:inherit;opacity:.85}
 
 .dp-resolution{padding:16px;border:1px solid #d5e8df;background:#f4faf7;border-radius:12px;margin-bottom:16px}.dp-resolution p{margin:8px 0;font-size:13px}.dp-resolution ul{padding-inline-start:24px;font-size:12px}.dp-original-issues{margin:12px 0;font-size:12px;color:var(--ui-muted)}
+
+/* Dense weekly planning grid: retain readable names while showing more weeks. */
+.dp-matrix-wrap{max-height:74dvh;border-radius:6px}
+.dp-matrix th,.dp-matrix td{width:146px;min-width:146px;padding:4px 5px}
+.dp-matrix thead th{height:48px}
+.dp-matrix .dp-person{width:168px;min-width:168px}
+.dp-matrix .dp-group th{padding:5px 8px}
+.dp-item{padding:3px 5px;margin-bottom:2px;border-radius:3px;line-height:1.35}
+.dp-matrix .dp-empty{margin-bottom:8px}
+@media(max-width:767px){.dp-matrix th,.dp-matrix td{width:132px;min-width:132px}.dp-matrix .dp-person{width:140px;min-width:140px}}
