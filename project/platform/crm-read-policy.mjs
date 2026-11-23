@@ -49,13 +49,14 @@ export async function readCrmPages(read,resource,params={}, {maxPages=20,maxRows
     const available=Math.max(0,maxRows-rows.length),overflow=response.value.length>available
     rows.push(...response.value.slice(0,available))
     next=response['@odata.nextLink']||null
+    if(!next&&(response['@Microsoft.Dynamics.CRM.morerecords']===true||response['@Microsoft.Dynamics.CRM.morerecords']==='true'))next='paging-cookie-required'
     if(overflow)next=next||'row-limit'
     if(!next)break
-    if(next==='row-limit')break
+    if(next==='row-limit'||next==='paging-cookie-required')break
     const checked=validateNextLink(next,initialUrl)
     if(seen.has(checked))throw new Error('صفحه‌بندی CRM تکراری است؛ خواندن متوقف شد.')
     seen.add(checked);target={nextLink:checked,initialUrl};arguments_={}
   }while(pages<maxPages&&rows.length<maxRows&&Date.now()-started<maxMs)
-  if(requireComplete&&next)throw new Error('ساختار CRM کامل خوانده نشد؛ نتیجهٔ ناقص استفاده نشد.')
+  if(requireComplete&&next)throw new Error(next==='paging-cookie-required'?'ویوی CRM صفحهٔ بعد را فقط با paging cookie می‌دهد؛ نتیجهٔ ناقص ذخیره نشد.':'ساختار CRM کامل خوانده نشد؛ نتیجهٔ ناقص استفاده نشد.')
   return {...response,value:rows,'@odata.nextLink':next||undefined,pages,complete:!next}
 }

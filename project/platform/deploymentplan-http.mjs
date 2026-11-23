@@ -4,7 +4,7 @@ import {randomUUID,createHash} from 'node:crypto'
 import {requireTool,canManageTool,toolRoles} from './platform-access.mjs'
 import {componentVersion} from './component-status.mjs'
 import {crmUserGet} from './crm-user.mjs'
-import {planningMetadata,fetchPlanningSnapshot,verifyPlanningView,temporaryPlanningViewName,authorizedPlanningIds,authorizedPlanningProjects,authorizedPlanningEvidence} from './deploymentplan-crm.mjs'
+import {planningMetadata,fetchPlanningSnapshot,listPlanningViews,verifyPlanningView,temporaryPlanningViewName,authorizedPlanningIds,authorizedPlanningProjects,authorizedPlanningEvidence} from './deploymentplan-crm.mjs'
 import {importedPlanningView} from './deploymentplan-import.mjs'
 import {sourceReviewEvidenceIds,canReadSourceEvidence} from './deploymentplan-reconciliation.mjs'
 import {createPlanState,seedInitialExperts,applyCommand,applySnapshot,archiveWeeks,planView,today,fail} from './deploymentplan-engine.mjs'
@@ -38,6 +38,7 @@ export function createDeploymentplanHttp({root,store,repository,send,bodyJson,re
   const action=route.slice('/api/deploymentplan/'.length)
   if(req.method==='GET'&&action==='info'){let version=null;try{version=await componentVersion(root,'deploymentplan')}catch(e){if(e.message!=='Unknown component')throw e}send(res,200,{name:user.name,manager:canManageTool(user,'deploymentplan'),version,crmConnected:Boolean(!user.organization?.disabled&&user.organization?.crm?.userId&&!user.organization?.crm?.invalidated),crmIdentity:user.organization?.crm?.displayName||null});return true}
   if(req.method==='POST'&&action==='connection/check'){const p=await bodyJson(req);if(Object.keys(p).length)throw fail('تست فقط برای حساب سازمانی فعلی انجام می‌شود.');await reader(user);send(res,200,{state:'connected',identity:connection(user).displayName,checkedAt:clock().toISOString()});return true}
+  if(req.method==='GET'&&action==='view/catalog'){send(res,200,{views:await listPlanningViews(await reader(user))});return true}
   if(req.method==='POST'&&action==='view/check'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['type','reference'].includes(k)))throw fail('مشخصات ویو معتبر نیست.');send(res,200,await verifyPlanningView(await reader(user),p));return true}
   if(req.method==='GET'&&action==='job'){const j=jobs.get(url.searchParams.get('id'));if(!j||j.userId!==user.id||j.fingerprint!==fingerprint(user))throw fail('وضعیت دریافت پیدا نشد.',404);send(res,200,publicJob(j));return true}
   if(req.method==='POST'&&action==='sync'){const p=await bodyJson(req);if(Object.keys(p).some(k=>k!=='mode')||p.mode&&!['manual','entry'].includes(p.mode))throw fail('درخواست بازخوانی معتبر نیست.');const s=await rawState();if(p.mode==='entry'&&!s.settings.syncOnEntry){send(res,200,{state:'disabled'});return true}send(res,202,await startSync(user,p.mode||'manual'));return true}

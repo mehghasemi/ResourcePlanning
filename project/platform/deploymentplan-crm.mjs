@@ -23,8 +23,18 @@ const select=(...fields)=>[...new Set(fields.flat().filter(Boolean).map(f=>typeo
 const pages=(read,r,p)=>readCrmPages(read,r,p,{requireComplete:true,maxPages:1000,maxRows:50000,maxMs:540000})
 export const temporaryPlanningViewName='همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون'
 const viewName=value=>String(value||'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\s\u200c]+/g,' ').trim()
+const isCaseView=row=>['incident','112'].includes(String(row.returnedtypecode))&&row.statecode!==1
+export async function listPlanningViews(read){
+ const views=[];let denied=0
+ for(const [type,resource,idField] of [['system','savedqueries','savedqueryid'],['personal','userqueries','userqueryid']]){
+  let result;try{result=await pages(read,resource,{'$select':`${idField},name,returnedtypecode,statecode`})}catch(e){if(e.status===403){denied++;continue}throw e}
+  for(const row of result.value)if(isCaseView(row)&&guid.test(row[idField]||''))views.push({type,id:row[idField].toLowerCase(),name:String(row.name||'')})
+ }
+ if(denied===2)throw fail('حساب CRM به فهرست ویوها دسترسی ندارد.',403)
+ return views.sort((a,b)=>a.name.localeCompare(b.name,'fa')||a.type.localeCompare(b.type))
+}
 export async function resolvePlanningView(read,input){
- if(input?.name){if(!['auto','system','personal'].includes(input.type)||viewName(input.name)!==viewName(temporaryPlanningViewName))throw fail('نام ویوی موقت CRM معتبر نیست.');const types=input.type==='auto'?['system','personal']:[input.type];for(const type of types){const idField=type==='system'?'savedqueryid':'userqueryid',resource=type==='system'?'savedqueries':'userqueries';let result;try{result=await pages(read,resource,{'$select':`${idField},name,returnedtypecode,statecode`,'$filter':"returnedtypecode eq 'incident' and statecode eq 0"})}catch(e){if(input.type==='auto'&&e.status===403)continue;throw e}const matches=result.value.filter(row=>viewName(row.name)===viewName(input.name));if(matches.length>1)throw fail('چند ویو با این نام پیدا شد؛ شناسهٔ ویو را ثبت کنید.',422);if(matches.length)return {type,id:matches[0][idField]?.toLowerCase(),name:matches[0].name}}throw fail('ویوی موقت تعهدات در CRM پیدا نشد؛ لینک یا شناسهٔ آن را ثبت کنید.',422)}
+ if(input?.name){if(!['auto','system','personal'].includes(input.type)||viewName(input.name)!==viewName(temporaryPlanningViewName))throw fail('نام ویوی موقت CRM معتبر نیست.');const views=await listPlanningViews(read),types=input.type==='auto'?['system','personal']:[input.type];for(const type of types){const matches=views.filter(v=>v.type===type&&viewName(v.name)===viewName(input.name));if(matches.length>1)throw fail('چند ویو با این نام پیدا شد؛ شناسهٔ ویو را ثبت کنید.',422);if(matches.length)return matches[0]}throw fail('ویوی موقت تعهدات در CRM پیدا نشد؛ لینک یا شناسهٔ آن را ثبت کنید.',422)}
  return verifyPlanningView(read,{type:input?.type,reference:input?.id||input?.reference})
 }
 export async function verifyPlanningView(read,input){
@@ -32,8 +42,7 @@ export async function verifyPlanningView(read,input){
  if(!view)throw fail('لینک یا شناسهٔ ویو را وارد کنید.')
  const response=await read(resource,{'$select':`${idField},name,returnedtypecode,statecode`,'$filter':`${idField} eq ${view.id}`,'$top':1}),record=response.value?.[0]
  if(!record||record[idField]?.toLowerCase()!==view.id)throw fail('ویو با حساب سازمانی فعلی پیدا نشد یا دسترسی به آن ندارید.',404)
- if(record.returnedtypecode!=='incident')throw fail('این ویو باید از نوع تعهدات CRM (incident) باشد.',422)
- if(record.statecode!==0)throw fail('ویوی CRM فعال نیست.',422)
+ if(!isCaseView(record))throw fail('این ویو باید از نوع تعهدات CRM (incident) و فعال باشد.',422)
  return {...view,name:record.name||'ویوی بدون نام'}
 }
 async function entity(read,name){
