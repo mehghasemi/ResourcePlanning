@@ -68,7 +68,7 @@ export async function planningMetadata(read){
  let account=null;try{account=await entity(read,'account')}catch(e){if(e.status!==403)throw e}
  return {incident,f,kindValues,kindOptions,statusFields,statusMaps,statusValues,activeState,stateOptions,planningStatusField,project,pf,sprint,account}
 }
-async function byIds(read,e,ids,fields){const all=[];for(let i=0;i<ids.length;i+=40){const part=ids.slice(i,i+40);if(part.some(id=>!guid.test(id)))throw fail('شناسهٔ مرجع معتبر نیست.',502);const r=await pages(read,e.EntitySetName,{'$select':select(e.PrimaryIdAttribute,fields),'$filter':part.map(id=>e.PrimaryIdAttribute+' eq '+id).join(' or ')});all.push(...r.value)}return all}
+async function byIds(read,e,ids,fields){const parts=[];for(let i=0;i<ids.length;i+=100){const part=ids.slice(i,i+100);if(part.some(id=>!guid.test(id)))throw fail('شناسهٔ مرجع معتبر نیست.',502);parts.push(part)}const results=[];for(let i=0;i<parts.length;i+=4){const batch=parts.slice(i,i+4);results.push(...await Promise.all(batch.map(part=>pages(read,e.EntitySetName,{'$select':select(e.PrimaryIdAttribute,fields),'$filter':part.map(id=>e.PrimaryIdAttribute+' eq '+id).join(' or ')}))))}return results.flatMap(r=>r.value)}
 function normalizeRows(rows,meta,projects,sprints,accounts){
  const {f,pf}=meta,projectMap=new Map(projects.map(r=>[r[meta.project.PrimaryIdAttribute],r])),sprintMap=new Map(sprints.map(r=>[r[meta.sprint?.PrimaryIdAttribute],r])),accountMap=new Map(accounts.map(r=>[r[meta.account?.PrimaryIdAttribute],r]))
  return rows.map(r=>{
