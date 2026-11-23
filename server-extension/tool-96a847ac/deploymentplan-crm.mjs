@@ -1,5 +1,5 @@
 import {readCrmPages} from '../../../crm-read-policy.mjs'
-import {fail,kinds,openStatuses,approvalStatuses,day,week,today,plusDays} from './deploymentplan-engine.mjs'
+import {fail,kinds,openStatuses,approvalStatuses,crmViewReference,day,week,today,plusDays} from './deploymentplan-engine.mjs'
 const guid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i
 const norm=s=>String(s||'').toLowerCase().replace(/[ي]/g,'ی').replace(/ك/g,'ک').replace(/[\s_\-‌]/g,'')
 const labels=x=>[x?.UserLocalizedLabel?.Label,...(x?.LocalizedLabels||[]).map(l=>l.Label)].filter(Boolean)
@@ -21,6 +21,21 @@ const inList=(f,names)=>names.map(norm).includes(norm(f.LogicalName))||labels(f.
 function field(e,names,required=false){const f=e.fields.find(f=>inList(f,names));if(required&&!f)throw fail('فیلد لازم در CRM تأیید نشد: '+names[0],422);return f}
 const select=(...fields)=>[...new Set(fields.flat().filter(Boolean).map(f=>typeof f==='string'?f:key(f)))].join(',')
 const pages=(read,r,p)=>readCrmPages(read,r,p,{requireComplete:true,maxPages:1000,maxRows:50000,maxMs:540000})
+export const temporaryPlanningViewName='همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون'
+const viewName=value=>String(value||'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\s\u200c]+/g,' ').trim()
+export async function resolvePlanningView(read,input){
+ if(input?.name){if(!['auto','system','personal'].includes(input.type)||viewName(input.name)!==viewName(temporaryPlanningViewName))throw fail('نام ویوی موقت CRM معتبر نیست.');const types=input.type==='auto'?['system','personal']:[input.type];for(const type of types){const idField=type==='system'?'savedqueryid':'userqueryid',resource=type==='system'?'savedqueries':'userqueries';let result;try{result=await pages(read,resource,{'$select':`${idField},name,returnedtypecode,statecode`,'$filter':"returnedtypecode eq 'incident' and statecode eq 0"})}catch(e){if(input.type==='auto'&&e.status===403)continue;throw e}const matches=result.value.filter(row=>viewName(row.name)===viewName(input.name));if(matches.length>1)throw fail('چند ویو با این نام پیدا شد؛ شناسهٔ ویو را ثبت کنید.',422);if(matches.length)return {type,id:matches[0][idField]?.toLowerCase(),name:matches[0].name}}throw fail('ویوی موقت تعهدات در CRM پیدا نشد؛ لینک یا شناسهٔ آن را ثبت کنید.',422)}
+ return verifyPlanningView(read,{type:input?.type,reference:input?.id||input?.reference})
+}
+export async function verifyPlanningView(read,input){
+ const view=crmViewReference(input),resource=view?.type==='personal'?'userqueries':'savedqueries',idField=view?.type==='personal'?'userqueryid':'savedqueryid'
+ if(!view)throw fail('لینک یا شناسهٔ ویو را وارد کنید.')
+ const response=await read(resource,{'$select':`${idField},name,returnedtypecode,statecode`,'$filter':`${idField} eq ${view.id}`,'$top':1}),record=response.value?.[0]
+ if(!record||record[idField]?.toLowerCase()!==view.id)throw fail('ویو با حساب سازمانی فعلی پیدا نشد یا دسترسی به آن ندارید.',404)
+ if(record.returnedtypecode!=='incident')throw fail('این ویو باید از نوع تعهدات CRM (incident) باشد.',422)
+ if(record.statecode!==0)throw fail('ویوی CRM فعال نیست.',422)
+ return {...view,name:record.name||'ویوی بدون نام'}
+}
 async function entity(read,name){
  const result=await pages(read,'EntityDefinitions',{'$select':'LogicalName,EntitySetName,PrimaryIdAttribute,PrimaryNameAttribute','$filter':"LogicalName eq '"+name+"'"}),e=result.value[0];if(!e||!/^[a-z][a-z0-9_]*$/i.test(e.EntitySetName))throw fail('ساختار موجودیت CRM تأیید نشد: '+name,422)
  const a=await pages(read,"EntityDefinitions(LogicalName='"+name+"')/Attributes",{'$select':'LogicalName,AttributeType,DisplayName,IsValidForRead,IsSecured'});e.fields=a.value.filter(f=>f.IsValidForRead===true&&!f.IsSecured);return e
@@ -61,7 +76,8 @@ function normalizeRows(rows,meta,projects,sprints,accounts){
   return {id:id.toLowerCase(),number:display(r,f.number),title:display(r,f.title),kind,sizeUnits,status,sourceStatus:statusText,closed,projectId,project:pr?display(pr,pf.name):display(r,f.project),customerId,customer:pr&&pf.customer?display(pr,pf.customer)||display(r,f.customer):display(r,f.customer),manager:pr?display(pr,pf.manager):'',province:pr&&display(pr,pf.province)||geo(['brd_province','address1_stateorprovince','Province']),city:pr&&display(pr,pf.city)||geo(['brd_city','address1_city','City']),week:sprintDate?week(sprintDate):null,sprintDate,sprintSourceDate,sprintEndDate,sprintBasis,sprint:display(r,f.sprint),backlogDate:sourceDay(value(r,f.backlog)),priorityNumber:value(r,f.priorityNumber)==null?null:Number(value(r,f.priorityNumber)),priority:display(r,f.priority),mappingWarning,url:'https://crm.baridsoft.ir/Main/main.aspx?pagetype=entityrecord&etn=incident&id='+id}
  })
 }
-export async function fetchPlanningSnapshot(read,meta,knownIds=[],progress=()=>{}){
+export async function fetchPlanningSnapshot(read,meta,knownIds=[],progress=()=>{},viewReference=null){
+ if(viewReference){progress('یافتن ویوی تعهدات CRM');const view=await resolvePlanningView(read,viewReference);if(!guid.test(view.id||''))throw fail('شناسهٔ ویوی CRM معتبر نیست.',422);progress('دریافت همهٔ صفحه‌های ویوی '+view.name);const query=view.type==='personal'?{'userQuery':view.id}:{'savedQuery':view.id},results=await pages(read,meta.incident.EntitySetName,query),ids=[...new Set(results.value.map(row=>row[meta.incident.PrimaryIdAttribute]))];if(ids.some(id=>!guid.test(id||'')))throw fail('ویوی CRM شناسهٔ معتبر تعهد برنمی‌گرداند.',422);const fields=select(meta.incident.PrimaryIdAttribute,Object.values(meta.f),meta.statusFields,'statecode'),records=await byIds(read,meta.incident,[...new Set([...ids,...knownIds])],fields),inView=new Set(ids.map(id=>id.toLowerCase()));return hydratePlanningRecords(read,meta,records.filter(row=>inView.has(row[meta.incident.PrimaryIdAttribute]?.toLowerCase())||knownIds.includes(row[meta.incident.PrimaryIdAttribute]?.toLowerCase())),progress)}
  progress('دریافت همهٔ صفحه‌های تعهدات مجاز CRM')
  const kindFilter='('+Object.values(meta.kindValues).map(v=>key(meta.f.kind)+' eq '+Number(v)).join(' or ')+')',states=[...new Set(Object.values(meta.statusValues).flat().map(x=>x.field+' eq '+Number(x.value)))],fields=select(meta.incident.PrimaryIdAttribute,Object.values(meta.f),meta.statusFields,'statecode'),incoming=await pages(read,meta.incident.EntitySetName,{'$select':fields,'$filter':key(meta.f.state)+' eq '+Number(meta.activeState)+' and '+kindFilter+' and ('+states.join(' or ')+')','$orderby':meta.incident.PrimaryIdAttribute+' asc'})
  const map=new Map(incoming.value.map(r=>[r[meta.incident.PrimaryIdAttribute],r])),tracked=knownIds.filter(id=>!map.has(id));if(tracked.length){progress('بررسی وضعیت شناسه‌های قبلی بدون بازخوانی تاریخچه');for(const r of await byIds(read,meta.incident,tracked,fields))map.set(r[meta.incident.PrimaryIdAttribute],r)}
@@ -86,4 +102,3 @@ export async function authorizedPlanningEvidence(read,groups){
  }
  return out
 }
-
