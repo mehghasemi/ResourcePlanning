@@ -1,0 +1,23 @@
+{
+  "schema": "combine.extension/1",
+  "id": "tool-96a847ac",
+  "title": "ResourcePlanning",
+  "description": "برنامه‌ریزی پروژه‌های استقرار و کانورت با تعهدات CRM",
+  "entry": "server.mjs",
+  "page": "index.html",
+  "icon": "icon.svg",
+  "crm": "organization-read",
+  "assets": [
+    "index.html",
+    "icon.svg",
+    "app.js",
+    "app.css",
+    "shared/",
+    "deploymentplan-ui.mjs",
+    "deploymentplan-view.mjs",
+    "deploymentplan.css",
+    "deploymentplan-shell.js",
+    "deploymentplan-shell.css",
+    "header-menus.css"
+  ]
+}
