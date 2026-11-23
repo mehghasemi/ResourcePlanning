@@ -1,5 +1,5 @@
 @echo off
-"%~dp0runtime\node.exe" "%~dp0tools\manage.mjs" start %*
+node "%~dp0tools\manage.mjs" start %*
 if errorlevel 1 (
   echo.
   echo The operation could not finish. See the message above.
