@@ -11,12 +11,12 @@ import {createPlanState,seedInitialExperts,applyCommand,applySnapshot,archiveWee
 // One encrypted workspace in the existing root-bound repository; no second database.
 export const planningWorkspace='e3676820-a2db-4185-96d1-7b07e74af276'
 export function createDeploymentplanHttp({root,store,repository,send,bodyJson,read=crmUserGet,clock=()=>new Date(),loadMetadata=planningMetadata,fetchSnapshot=fetchPlanningSnapshot,authorizeIds=authorizedPlanningIds,authorizeProjectIds=authorizedPlanningProjects,authorizeEvidenceIds=authorizedPlanningEvidence}){
- const schemas=new Map(),viewCatalogs=new Map(),jobs=new Map();let flight=null,ticking=false
+ const schemas=new Map(),viewCatalogs=new Map(),accessGrants=new Map(),jobs=new Map();let flight=null,ticking=false
  const fingerprint=u=>createHash('sha256').update(JSON.stringify([u.organization?.id,u.organization?.disabled,u.organization?.crm])).digest('hex')
+ const grantKey=u=>u.id+':'+u.revision+':'+fingerprint(u)
  async function fresh(user){const u=await store.get(user?.id);if(!u?.enabled||u.revision!==user.revision)throw fail('نشست یا دسترسی تغییر کرده؛ دوباره وارد شوید.',401);requireTool(u,'deploymentplan');return u}
  function connection(u){const c=!u.organization?.disabled&&u.organization?.crm;if(!c?.userId||c.invalidated)throw fail('حساب سازمانی CRM را از تنظیمات مشترک متصل کنید.',428);return c}
- function uncheckedReader(u){const c=connection(u);return async(resource,params)=>{const current=await fresh(u);if(fingerprint(current)!==fingerprint(u))throw fail('اتصال حساب سازمانی تغییر کرده است.',409);return read(c,resource,params)}}
- async function reader(u){const c=connection(u),identity=await read(c,'WhoAmI');if(identity.UserId?.toLowerCase()!==c.userId.toLowerCase())throw fail('هویت CRM با حساب سازمانی فعلی یکسان نیست.',428);return uncheckedReader(u)}
+ async function reader(u){const c=connection(u),identity=await read(c,'WhoAmI');if(identity.UserId?.toLowerCase()!==c.userId.toLowerCase())throw fail('هویت CRM با حساب سازمانی فعلی یکسان نیست.',428);return async(resource,params)=>{const current=await fresh(u);if(fingerprint(current)!==fingerprint(u))throw fail('اتصال حساب سازمانی تغییر کرده است.',409);return read(c,resource,params)}}
  async function metadata(u,r){const k=u.id+fingerprint(u),v=schemas.get(k);if(v&&v.at>Date.now()-300000)return v.data;const data=await loadMetadata(r);schemas.set(k,{at:Date.now(),data});return data}
  async function rawState(){return (await repository.read(planningWorkspace)).deploymentplan||createPlanState()}
  async function state(){let s=await rawState();if(s.initialRosterVersion>=1)return s;await repository.mutate(planningWorkspace,v=>{const draft=v.deploymentplan??=createPlanState();if(seedInitialExperts(draft,clock().toISOString()))draft.revision++});return rawState()}
@@ -43,17 +43,19 @@ export function createDeploymentplanHttp({root,store,repository,send,bodyJson,re
   if(req.method==='POST'&&action==='view/check'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['type','reference'].includes(k)))throw fail('مشخصات ویو معتبر نیست.');send(res,200,await verifyPlanningView(await reader(user),p));return true}
   if(req.method==='GET'&&action==='job'){const j=jobs.get(url.searchParams.get('id'));if(!j||j.userId!==user.id||j.fingerprint!==fingerprint(user))throw fail('وضعیت دریافت پیدا نشد.',404);send(res,200,publicJob(j));return true}
   if(req.method==='POST'&&action==='sync'){const p=await bodyJson(req);if(Object.keys(p).some(k=>k!=='mode')||p.mode&&!['manual','entry'].includes(p.mode))throw fail('درخواست بازخوانی معتبر نیست.');const s=await rawState();if(p.mode==='entry'&&!s.settings.syncOnEntry){send(res,200,{state:'disabled'});return true}send(res,202,await startSync(user,p.mode||'manual'));return true}
-  if(req.method==='GET'&&['state','state/compact'].includes(action)){await archive();const s=await state(),scope=await allowed(user,s),result=view(s,scope,user);if(action==='state/compact')result.audit=[];send(res,200,result);return true}
+  if(req.method==='GET'&&['state','state/compact'].includes(action)){await archive();const s=await state(),scope=await allowed(user,s),result=view(s,scope,user);accessGrants.set(grantKey(user),{ids:new Set(scope.ids),at:Date.now()});if(action==='state/compact')result.audit=[];send(res,200,result);return true}
   if(req.method==='POST'&&action==='command'){
    const p=await bodyJson(req);if(!p||Object.keys(p).some(k=>!['revision','action','data'].includes(k))||!Number.isSafeInteger(p.revision)||typeof p.action!=='string'||!p.data||typeof p.data!=='object'||Array.isArray(p.data))throw fail('درخواست تغییر معتبر نیست.')
    if(p.action==='settings'){if(!canManageTool(user,'deploymentplan'))throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);send(res,200,await update(user,p.revision,(draft,current)=>applyCommand(draft,p.action,p.data,current,{manager:true,now:clock()})));return true}
-   const s=await state(),manager=canManageTool(user,'deploymentplan'),data=p.data;if(p.revision!==s.revision)throw fail('برنامه هم‌زمان تغییر کرده؛ فرم را دوباره باز کنید.',409)
-   const references=new Set();for(const blockId of [data.blockId,...(Array.isArray(data.items)?data.items.map(item=>item?.blockId):[])].filter(Boolean)){const b=s.blocks.find(b=>b.id===blockId);if(b)references.add(b.obligationId)}
-   for(const id of [data.id,...(Array.isArray(data.ids)?data.ids:[])].filter(Boolean)){const a=s.allocations.find(a=>a.id===id);if(a)references.add(a.obligationId);const r=s.requests.find(r=>r.id===id);if(r)references.add(r.before.obligationId);const c=planView(s,Object.keys(s.obligations),today(clock())).conflicts.find(c=>c.id===id);if(c?.obligationId)references.add(c.obligationId)}
-   if(data.projectId)for(const o of Object.values(s.obligations).filter(o=>o.projectId===data.projectId))references.add(o.id)
-   if(data.customerId){const source=Object.values(s.obligations).find(o=>o.customerId===data.customerId);if(!source)throw fail('مشتری در دامنهٔ مجاز فعلی نیست.',403);references.add(source.id)}
-   if(references.size){const c=connection(user),r=uncheckedReader(user),[identity,permitted]=await Promise.all([read(c,'WhoAmI'),(async()=>authorizeIds(r,await metadata(user,r),[...references]))()]);if(identity.UserId?.toLowerCase()!==c.userId.toLowerCase())throw fail('هویت CRM با حساب سازمانی فعلی یکسان نیست.',428);const ids=new Set(permitted);if([...references].some(id=>!ids.has(id)))throw fail('به یکی از منابع CRM این عملیات دسترسی ندارید.',403)}
-   try{send(res,200,await update(user,p.revision,(draft,current)=>applyCommand(draft,p.action,data,current,{manager,now:clock()})))}catch(e){if(e.status===409&&e.details?.warnings){send(res,409,{error:e.message,warnings:e.details.warnings});return true}throw e}return true
+   const manager=canManageTool(user,'deploymentplan'),data=p.data
+   try{send(res,200,await update(user,p.revision,(draft,current)=>{
+    const references=new Set();for(const blockId of [data.blockId,...(Array.isArray(data.items)?data.items.map(item=>item?.blockId):[])].filter(Boolean)){const b=draft.blocks.find(b=>b.id===blockId);if(b)references.add(b.obligationId)}
+   for(const id of [data.id,...(Array.isArray(data.ids)?data.ids:[])].filter(Boolean)){const a=draft.allocations.find(a=>a.id===id);if(a)references.add(a.obligationId);const r=draft.requests.find(r=>r.id===id);if(r)references.add(r.before.obligationId);const c=planView(draft,Object.keys(draft.obligations),today(clock())).conflicts.find(c=>c.id===id);if(c?.obligationId)references.add(c.obligationId)}
+   if(data.projectId)for(const o of Object.values(draft.obligations).filter(o=>o.projectId===data.projectId))references.add(o.id)
+   if(data.customerId){const source=Object.values(draft.obligations).find(o=>o.customerId===data.customerId);if(!source)throw fail('مشتری در دامنهٔ مجاز فعلی نیست.',403);references.add(source.id)}
+   if(references.size){const grant=accessGrants.get(grantKey(user));if(!grant||Date.now()-grant.at>1800000)throw fail('مجوز نمایش برنامه منقضی شده؛ صفحه را تازه کنید.',409);if([...references].some(id=>!grant.ids.has(id)))throw fail('به یکی از منابع این برنامه دسترسی ندارید.',403)}
+    return applyCommand(draft,p.action,data,current,{manager,now:clock()})
+   }))}catch(e){if(e.status===409&&e.details?.warnings){send(res,409,{error:e.message,warnings:e.details.warnings});return true}throw e}return true
   }
   throw fail('مسیر ابزار پیدا نشد.',404)
  }}
