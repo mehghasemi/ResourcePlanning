@@ -18,3 +18,5 @@
 - فرمان‌های کاربر: در یک پوشه بالاتر، `Start.cmd`، `Start-Live-CRM.cmd`، `Stop.cmd`، `Verify.cmd` و `Build-Return.cmd`.
 
 هیچ فایل داده، حساب، تنظیمات خصوصی، اکسل اصلی یا کش CRM صاحب ابزار داخل این بسته نیست. داده‌های اجرای دریافت‌کننده بیرون `project` و در `.local-data` ساخته می‌شوند؛ خروجی تغییرات نیز بیرون آن و در `returns` می‌ماند.
+
+- پیکربندی اعتبارسنجی‌ها: فهرست `validationRules`، حالت‌های `validationPolicies` و اجرای اتمی قواعد در `platform/deploymentplan-engine.mjs`؛ منوی «پیکربندی سیستم» در رابط، با ثبت مدیریتی از اقدام `validation-settings`.

@@ -124,3 +124,18 @@
 
 .dp-return-target .dp-demand-section th{background:#245d96;outline:2px dashed #fff;outline-offset:-4px}
 .dp-return-target .dp-demand-section .dp-group-toggle:after{content:"رها کنید تا به تعهدات برنامه‌ریزی‌نشده برگردد";font-size:11px;margin-inline-start:12px}
+
+.dp-validation-settings{margin-bottom:16px}.dp-validation-settings h2{font-size:17px}.dp-validation-basis{font-size:12px;color:#425875;margin:12px 0;padding:10px;background:#edf3fc;border-radius:6px}.dp-validation-rule-list{margin:12px 0}.dp-validation-rule{display:grid;grid-template-columns:minmax(0,1fr) 165px;align-items:center;gap:20px;padding:10px 0;border-bottom:1px solid var(--ui-line)}.dp-validation-rule p{font-size:12px;color:var(--ui-muted)}.dp-validation-rule .ui-input{min-height:32px;padding:4px 7px}.dp-validation-block{border-inline-start:3px solid #c9252c;padding-inline-start:8px;margin-bottom:8px}.dp-validation-warn{border-inline-start:3px solid #d18b19;padding-inline-start:8px;margin-bottom:8px}#dp-action-warnings ul{padding-inline-start:20px;font-size:12px}#dp-validation-saved{color:#0c7f62;font-size:12px}@media(max-width:600px){.dp-validation-rule{grid-template-columns:minmax(0,1fr) 125px;gap:8px}}
+
+/* Keep navigation anchored to the viewport and use one scroll direction consistently. */
+@media(min-width:768px){.cs-header{position:sticky;top:0;z-index:40}.cs-sidebar{position:fixed;inset-block-start:var(--ui-header-height);inset-block-end:0;inset-inline-start:0;width:var(--ui-sidebar-width);height:calc(100dvh - var(--ui-header-height));align-self:stretch;z-index:20}.cs-main{grid-column:2}}
+.dp-matrix-wrap{direction:ltr}.dp-matrix{direction:rtl}.dp-matrix-scroll{direction:rtl}
+.dp-matrix tbody tr:not(.dp-group)>td{background:#fff!important}.dp-list>.dp-record:nth-child(even),.dp-list>.dp-record:nth-child(odd){background:#fff}
+.dp-cell-stack{height:44px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;overscroll-behavior:contain}
+.dp-planned-wrap>[data-select-allocation]{width:15px;height:15px;flex:none;margin:4px 0 0;accent-color:var(--ui-primary)}
+.dp-planned-wrap:has([data-select-allocation]:checked)>.dp-item{outline:2px solid #3949a6;outline-offset:-2px}
+.dp-matrix .dp-item.dp-allocation[data-allocation-status="confirmed"]{border:2px solid #c9252c;box-shadow:inset 0 0 0 1px #c9252c}
+
+.dp-planned-wrap>.dp-item{padding-block:2px;margin-bottom:2px}
+
+.dp-approval-summary{font-size:12px;padding-inline-start:20px}.dp-approval-summary li{margin-bottom:7px}

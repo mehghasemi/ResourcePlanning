@@ -55,7 +55,7 @@ export function createDeploymentplanHttp({root,store,repository,send,bodyJson,re
    if(data.customerId){const source=Object.values(draft.obligations).find(o=>o.customerId===data.customerId);if(!source)throw fail('مشتری در دامنهٔ مجاز فعلی نیست.',403);references.add(source.id)}
    if(references.size){const grant=accessGrants.get(grantKey(user));if(!grant||Date.now()-grant.at>1800000)throw fail('مجوز نمایش برنامه منقضی شده؛ صفحه را تازه کنید.',409);if([...references].some(id=>!grant.ids.has(id)))throw fail('به یکی از منابع این برنامه دسترسی ندارید.',403)}
     return applyCommand(draft,p.action,data,current,{manager,now:clock()})
-   }))}catch(e){if(e.status===409&&e.details?.warnings){send(res,409,{error:e.message,warnings:e.details.warnings});return true}throw e}return true
+   }))}catch(e){if(e.details?.warnings||e.details?.validations){send(res,e.status||409,{error:e.message,...e.details});return true}throw e}return true
   }
   throw fail('مسیر ابزار پیدا نشد.',404)
  }}
