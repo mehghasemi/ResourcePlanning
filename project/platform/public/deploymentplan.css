@@ -197,3 +197,10 @@
 .dp-live-warnings ul{margin:4px 0 0;padding-inline-start:18px}.dp-live-warnings li+li{margin-top:6px}
 
 .dp-rule-message{font-size:11px;margin-top:3px}.dp-rule-message summary{color:#2457a7;cursor:pointer}.dp-rule-message input{margin-top:4px}
+
+/* Eight visible weeks; additional weeks remain at their full width off screen. */
+.dp-matrix-frame .dp-matrix{min-width:0;table-layout:fixed}
+.dp-matrix-frame .dp-matrix col.dp-person-col{width:var(--dp-person-width,168px)}
+.dp-matrix-frame .dp-matrix col.dp-week-col{width:var(--dp-week-width,146px)}
+.dp-matrix-frame .dp-matrix th:not(.dp-person),.dp-matrix-frame .dp-matrix td{width:auto;min-width:0;max-width:none}
+.dp-matrix .dp-item.dp-demand>strong,.dp-matrix .dp-item.dp-allocation>strong,.dp-list .dp-item.dp-demand>strong{text-overflow:ellipsis;font-size:clamp(11px,1vw,14px)}
