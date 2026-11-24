@@ -223,3 +223,5 @@
 .dp-matrix-frame .dp-matrix-wrap{overflow-x:hidden;overflow-y:auto}
 
 .dp-matrix thead th[data-week-start] button{font-size:11px;line-height:15px;white-space:nowrap}.dp-matrix .dp-head-days{display:block;font-size:10px;line-height:13px;font-weight:400;direction:ltr}
+
+.dp-multi-field{display:flex;align-items:center;gap:5px;white-space:nowrap}.dp-multi{min-width:105px;font-size:11px}.dp-multi>summary{cursor:pointer;background:#fff;color:#233b62;border:1px solid #d4dded;border-radius:5px;padding:3px 7px;font-weight:400}.dp-multi-panel{position:fixed;width:240px;max-height:270px;overflow:auto;z-index:1000;background:#fff;border:1px solid #b5c6e0;border-radius:8px;box-shadow:0 6px 24px #15345633;padding:8px;color:#172442;font-size:12px}.dp-demand-controls .dp-multi-panel label{display:flex;gap:7px;align-items:center;padding:6px;white-space:normal}.dp-multi-panel>div{display:flex;justify-content:space-between;margin-top:7px}
