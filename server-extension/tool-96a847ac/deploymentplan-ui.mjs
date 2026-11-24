@@ -57,7 +57,7 @@ function bindMatrixScroll(){
  matrixResizeObserver?.disconnect();const top=document.querySelector('.dp-matrix-scroll'),bottom=document.querySelector('.dp-matrix-wrap');
  const fit=()=>{cancelAnimationFrame(fitFrame);fitFrame=requestAnimationFrame(()=>fitCardTitles($('tool-content')))};
  if(!top||!bottom){fit();document.fonts.ready.then(fit);return}const slider=top.querySelector('input'),table=bottom.querySelector('table');let initialized=false;
- const update=()=>{const max=Math.max(0,bottom.scrollWidth-bottom.clientWidth);slider.max=String(max);if(!initialized){bottom.scrollLeft=max;initialized=true}slider.value=String(max-bottom.scrollLeft);slider.disabled=!max;top.querySelectorAll('button').forEach(b=>b.disabled=!max);fit()};
+ const update=()=>{const max=Math.max(0,bottom.scrollWidth-bottom.clientWidth);slider.max=String(max);if(!initialized){bottom.scrollLeft=max;initialized=true}slider.value=String(max-bottom.scrollLeft);slider.disabled=!max;top.title=max?'نوار را بکشید یا از فلش‌ها برای پیمایش افقی استفاده کنید.':'همهٔ ستون‌های این بازه در صفحه جا شده‌اند؛ برای دیدن هفته‌های بیشتر، تا تاریخ را جلو ببرید یا بازهٔ بعد را بزنید.';top.querySelectorAll('button').forEach(b=>b.disabled=!max);fit()};
  slider.oninput=slider.onchange=()=>{bottom.scrollLeft=Number(slider.max)-Number(slider.value)};bottom.onscroll=()=>{slider.value=String(Number(slider.max)-bottom.scrollLeft)};
  top.querySelectorAll('[data-pan]').forEach(b=>b.onclick=()=>{bottom.scrollLeft-=Number(b.dataset.pan)*220});
  matrixResizeObserver=new ResizeObserver(update);matrixResizeObserver.observe(bottom);matrixResizeObserver.observe(table);update();document.fonts.ready.then(()=>{sizePersonColumn();update()})
