@@ -139,3 +139,22 @@
 .dp-planned-wrap>.dp-item{padding-block:2px;margin-bottom:2px}
 
 .dp-approval-summary{font-size:12px;padding-inline-start:20px}.dp-approval-summary li{margin-bottom:7px}
+
+/* Timeline navigation and its date headings share a sticky viewport anchor. */
+.dp-matrix-sticky{position:sticky;top:var(--ui-header-height);z-index:12;background:#fff;padding-top:2px}
+.dp-matrix-scroll{margin-bottom:0;flex-wrap:nowrap;height:28px}
+.dp-timeline-label{font-size:10px;white-space:nowrap;color:#234c83;flex:none;min-width:150px;text-align:center}
+.dp-date-strip{direction:ltr;overflow:hidden;max-width:100%;background:#234c83}
+.dp-date-strip .dp-matrix{min-width:0}.dp-date-strip th{position:relative!important;top:auto;white-space:nowrap}
+.dp-matrix-wrap>.dp-matrix>thead{visibility:collapse}
+.dp-cell-stack{height:auto;overflow:visible;overscroll-behavior:auto}
+.dp-matrix tbody tr.dp-unallocated-row>.dp-person{background:rgb(224,135,31)!important;color:#172442!important}
+.dp-matrix .dp-unallocated-row .dp-customer-name,.dp-matrix .dp-unallocated-row .dp-customer-name.dp-compact-title{display:block;font-size:14px;line-height:1.6;white-space:normal;overflow:visible;overflow-wrap:anywhere;height:auto;max-height:none;-webkit-line-clamp:unset}
+.dp-sidebar-note{flex:0 0 auto;margin:0 6px;padding:8px 0 12px;min-height:0}
+.dp-sidebar-note strong{margin-bottom:4px}.dp-sync-meta{display:grid;gap:3px;font-size:12px;line-height:1.65;color:var(--ui-muted)}
+.dp-sync-meta time,.dp-sync-meta>span{display:block;white-space:normal;overflow-wrap:anywhere}
+.dp-sync-meta details p{max-height:120px;overflow:auto;white-space:normal;overflow-wrap:anywhere}
+.dp-sidebar-note #cs-status{margin:6px 0 0;max-height:100px;overflow:auto;font-size:11px;padding:5px 7px}
+@media(max-width:767px){.dp-matrix-sticky{top:0}.dp-timeline-label{min-width:115px;font-size:9px}.dp-demand-controls{gap:5px;flex-wrap:wrap}.dp-demand-heading{gap:6px;flex-wrap:wrap}}
+
+.dp-date-strip .dp-person{position:sticky!important;inset-inline-start:0;z-index:7}
