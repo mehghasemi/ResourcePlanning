@@ -89,8 +89,8 @@
 .dp-unallocated-row .dp-customer-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:11px;line-height:1.15}
 .dp-unallocated-row .dp-customer-name.dp-compact-title{font-size:9px}
 
-@media(min-width:768px){.cs-sidebar{position:sticky;top:0;align-self:start;height:calc(100dvh - var(--ui-header-height));overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto}.dp-sidebar-note{flex:none;margin-top:0}}
-@media(max-width:767px){.cs-sidebar.is-open{display:flex;flex-direction:column;overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto}.dp-sidebar-note{flex:none;margin-top:0}}
+@media(min-width:768px){.cs-sidebar{position:sticky;top:0;align-self:start;height:calc(100dvh - var(--ui-header-height));overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto;align-content:start;grid-auto-rows:max-content}.dp-sidebar-note{flex:none;margin-top:0}}
+@media(max-width:767px){.cs-sidebar.cs-open{display:flex;flex-direction:column;overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto;align-content:start;grid-auto-rows:max-content}.dp-sidebar-note{flex:none;margin-top:0}}
 .dp-matrix thead th:not(.dp-person){background:rgb(35,76,131);color:#fff;text-align:center}
 .dp-matrix thead th:not(.dp-person) button{color:#fff;text-align:center}
 .dp-unallocated-row .dp-customer-name{font-size:13px;line-height:1.05}
@@ -98,3 +98,14 @@
 .dp-unallocated-row .dp-item strong{font-size:12px}
 .dp-unallocated-row .dp-item strong.dp-compact-title{font-size:10px}
 .dp-matrix .dp-item.dp-allocation[data-allocation-status="confirmed"]{border-color:#c9252c;box-shadow:inset 0 0 0 1px #c9252c}
+
+/* Keep filter controls and actions in one compact row. */
+.dp-filters{padding:4px 8px;gap:6px;align-items:center;flex-wrap:nowrap}
+.dp-filters .dp-filter-grid{gap:5px;align-items:center}
+.dp-filter-grid>.ui-field{flex:1 0 100px;gap:0;line-height:16px;font-size:10px}
+.dp-filter-grid>.ui-field:nth-child(-n+2){flex:1 0 112px}
+.dp-filters .ui-input,.dp-filters .dp-date-button{height:28px;min-height:28px;padding:2px 5px;font-size:11px;line-height:20px;border-radius:6px}
+.dp-filter-grid .ui-check{gap:4px;margin:0;font-size:10px}
+.dp-filter-actions{flex-wrap:nowrap;align-self:center}
+.dp-filter-actions .ui-button{height:28px;min-height:28px;padding:2px 7px;line-height:20px;font-size:11px;border-radius:6px}
+@media(max-width:767px){.dp-filters{align-items:center}.dp-filter-actions{flex-direction:row}}
