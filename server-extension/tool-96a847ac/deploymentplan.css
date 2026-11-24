@@ -209,3 +209,15 @@
 .dp-bottom-scroll{position:fixed;bottom:0;height:22px;z-index:30;direction:ltr;overflow-x:scroll;overflow-y:hidden;background:#edf2f9;border-top:1px solid #b7c8df;box-sizing:border-box;scroll-behavior:auto;scrollbar-width:auto;scrollbar-color:#647fa5 #e1e9f4}
 .dp-bottom-scroll>div{height:1px;pointer-events:none}
 .dp-bottom-scroll::-webkit-scrollbar{height:17px}.dp-bottom-scroll::-webkit-scrollbar-track{background:#e1e9f4}.dp-bottom-scroll::-webkit-scrollbar-thumb{background:#647fa5;border:2px solid #e1e9f4;border-radius:8px;min-width:30px}
+
+/* One horizontal scrollbar: the fixed bottom control; retain native vertical scrolling. */
+.dp-matrix-frame .dp-matrix-wrap::-webkit-scrollbar{width:12px;height:0}
+.dp-matrix-frame .dp-matrix-wrap::-webkit-scrollbar-thumb{background:#cbd6e9;border-radius:8px}
+.dp-week-navigation{display:flex;align-items:center;gap:4px;flex:none;align-self:center;white-space:nowrap}
+.dp-week-navigation .ui-button{min-height:32px!important;height:32px!important;padding:3px 9px!important;font-size:12px!important;border:0!important;background:#234c83!important;color:#fff!important}
+.dp-week-navigation [data-matrix-nav="today"]{background:#0c7f62!important}
+.dp-week-navigation .ui-button:hover{filter:brightness(1.12)}
+.dp-filter-actions>.dp-help{margin:0 4px;align-self:center}.dp-filter-actions>.dp-help summary{width:23px;height:23px;font-size:13px}
+.dp-matrix-frame .dp-matrix thead .dp-person{background:#234c83}
+
+.dp-matrix-frame .dp-matrix-wrap{overflow-x:hidden;overflow-y:auto}
