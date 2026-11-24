@@ -221,3 +221,5 @@
 .dp-matrix-frame .dp-matrix thead .dp-person{background:#234c83}
 
 .dp-matrix-frame .dp-matrix-wrap{overflow-x:hidden;overflow-y:auto}
+
+.dp-matrix thead th[data-week-start] button{font-size:11px;line-height:15px;white-space:nowrap}.dp-matrix .dp-head-days{display:block;font-size:10px;line-height:13px;font-weight:400;direction:ltr}
