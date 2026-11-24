@@ -121,3 +121,6 @@
 .dp-matrix .dp-item.dp-demand>strong,.dp-matrix .dp-item.dp-allocation>strong,.dp-list .dp-item.dp-demand>strong,.dp-unallocated-row .dp-customer-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:clip;-webkit-line-clamp:unset;max-height:18px;height:18px;line-height:18px;font-size:14px}
 
 .dp-selection-actions:not(:has(>button:not([hidden]))){display:none}
+
+.dp-return-target .dp-demand-section th{background:#245d96;outline:2px dashed #fff;outline-offset:-4px}
+.dp-return-target .dp-demand-section .dp-group-toggle:after{content:"رها کنید تا به تعهدات برنامه‌ریزی‌نشده برگردد";font-size:11px;margin-inline-start:12px}
