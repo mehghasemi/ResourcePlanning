@@ -203,4 +203,9 @@
 .dp-matrix-frame .dp-matrix col.dp-person-col{width:var(--dp-person-width,168px)}
 .dp-matrix-frame .dp-matrix col.dp-week-col{width:var(--dp-week-width,146px)}
 .dp-matrix-frame .dp-matrix th:not(.dp-person),.dp-matrix-frame .dp-matrix td{width:auto;min-width:0;max-width:none}
-.dp-matrix .dp-item.dp-demand>strong,.dp-matrix .dp-item.dp-allocation>strong,.dp-list .dp-item.dp-demand>strong{text-overflow:ellipsis;font-size:clamp(11px,1vw,14px)}
+.dp-matrix .dp-item.dp-demand>strong,.dp-matrix .dp-item.dp-allocation>strong,.dp-list .dp-item.dp-demand>strong{text-overflow:clip;font-size:12px}
+
+/* A real scrollbar stays at the viewport bottom and mirrors the table pixel for pixel. */
+.dp-bottom-scroll{position:fixed;bottom:0;height:22px;z-index:30;direction:ltr;overflow-x:scroll;overflow-y:hidden;background:#edf2f9;border-top:1px solid #b7c8df;box-sizing:border-box;scroll-behavior:auto;scrollbar-width:auto;scrollbar-color:#647fa5 #e1e9f4}
+.dp-bottom-scroll>div{height:1px;pointer-events:none}
+.dp-bottom-scroll::-webkit-scrollbar{height:17px}.dp-bottom-scroll::-webkit-scrollbar-track{background:#e1e9f4}.dp-bottom-scroll::-webkit-scrollbar-thumb{background:#647fa5;border:2px solid #e1e9f4;border-radius:8px;min-width:30px}
