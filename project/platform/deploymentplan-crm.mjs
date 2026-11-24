@@ -97,6 +97,12 @@ export async function hydratePlanningRecords(read,meta,rows,progress=()=>{}){
  const accountIds=[...new Set([...rows.map(r=>value(r,meta.f.customer)),...projects.map(r=>value(r,meta.pf.customer))].filter(Boolean))],af=meta.account?[field(meta.account,['brd_province','address1_stateorprovince','Province']),field(meta.account,['brd_city','address1_city','City'])].filter(Boolean):[],accounts=meta.account?await byIds(read,meta.account,accountIds,af):[]
  return normalizeRows(rows,meta,projects,sprints,accounts)
 }
+// Permission checks need entity identifiers, not field, lookup or option-set metadata.
+export async function authorizationMetadata(read){
+ const result=await pages(read,'EntityDefinitions',{'$select':'LogicalName,EntitySetName,PrimaryIdAttribute','$filter':"LogicalName eq 'incident' or LogicalName eq 'brd_project'"}),out={};
+ for(const [key,name] of [['incident','incident'],['project','brd_project']]){const matches=result.value.filter(e=>e.LogicalName===name);if(matches.length!==1||!matches[0].EntitySetName?.match(/^[a-z][a-z0-9_]*$/i)||!matches[0].PrimaryIdAttribute?.match(/^[a-z][a-z0-9_]*$/i))throw fail('ساختار بررسی دسترسی CRM تأیید نشد: '+name,422);out[key]=matches[0]}
+ return out
+}
 export async function authorizedPlanningIds(read,meta,ids){if(!ids.length)return [];const rows=await byIds(read,meta.incident,[...new Set(ids)],[]);return rows.map(r=>r[meta.incident.PrimaryIdAttribute].toLowerCase())}
 export async function authorizedPlanningProjects(read,meta,ids){if(!ids.length)return [];const rows=await byIds(read,meta.project,[...new Set(ids)],[]);return rows.map(r=>r[meta.project.PrimaryIdAttribute].toLowerCase())}
 export async function authorizedPlanningEvidence(read,groups){
