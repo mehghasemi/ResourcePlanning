@@ -10,12 +10,12 @@ test('extracted tool uses the real domain/HTTP modules and persists sample edits
  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'deploymentplan-handoff-'));let app
  try{
   app=await startDevelopmentHost({port:0,directory});let api=await session(app)
-  const initial=await (await api.get('/api/deploymentplan/state')).json();assert.equal(initial.experts.length,5);assert.equal(initial.sourcePrograms.length,3);assert(Object.keys(initial.obligations).length>=3)
+  const initial=await (await api.get('/api/deploymentplan/state')).json();assert(initial.experts.length>=19);assert.equal(initial.sourcePrograms.length,3);assert(Object.keys(initial.obligations).length>=3)
   const info=await (await api.get('/api/deploymentplan/info')).json();assert.equal(info.crmConnected,false);assert.match(info.crmIdentity,/ساختگی/)
   const saved=await api.post('/api/deploymentplan/command',{revision:initial.revision,action:'expert',data:{name:'کارشناس آزمون ماندگاری',kind:'Implementation',order:6,active:true}});assert.equal(saved.status,200)
   const stale=await api.post('/api/deploymentplan/command',{revision:initial.revision,action:'expert',data:{name:'نباید ذخیره شود',kind:'Implementation',order:7,active:true}});assert.equal(stale.status,409)
   await app.close();app=await startDevelopmentHost({port:0,directory});api=await session(app)
-  const after=await (await api.get('/api/deploymentplan/state')).json();assert.equal(after.experts.length,6);assert(after.experts.some(e=>e.name==='کارشناس آزمون ماندگاری'))
+  const after=await (await api.get('/api/deploymentplan/state')).json();assert.equal(after.experts.length,initial.experts.length+1);assert(after.experts.some(e=>e.name==='کارشناس آزمون ماندگاری'))
   const sync=await api.post('/api/deploymentplan/sync',{});assert.equal(sync.status,202);const job=await sync.json();let result
   for(let i=0;i<100;i++){result=await (await api.get('/api/deploymentplan/job?id='+job.id)).json();if(result.state!=='running')break;await new Promise(r=>setTimeout(r,5))}assert.equal(result.state,'success')
   const resynced=await (await api.get('/api/deploymentplan/state')).json();assert(resynced.experts.some(e=>e.name==='کارشناس آزمون ماندگاری'))

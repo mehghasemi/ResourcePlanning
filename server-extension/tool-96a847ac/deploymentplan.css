@@ -88,3 +88,13 @@
 .dp-unallocated-row .dp-item strong.dp-compact-title{font-size:9px;max-height:2.3em}
 .dp-unallocated-row .dp-customer-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:11px;line-height:1.15}
 .dp-unallocated-row .dp-customer-name.dp-compact-title{font-size:9px}
+
+@media(min-width:768px){.cs-sidebar{position:sticky;top:0;align-self:start;height:calc(100dvh - var(--ui-header-height));overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto}.dp-sidebar-note{flex:none;margin-top:0}}
+@media(max-width:767px){.cs-sidebar.is-open{display:flex;flex-direction:column;overflow:hidden}.cs-sidebar nav{flex:1;min-height:0;overflow-y:auto}.dp-sidebar-note{flex:none;margin-top:0}}
+.dp-matrix thead th:not(.dp-person){background:rgb(35,76,131);color:#fff;text-align:center}
+.dp-matrix thead th:not(.dp-person) button{color:#fff;text-align:center}
+.dp-unallocated-row .dp-customer-name{font-size:13px;line-height:1.05}
+.dp-unallocated-row .dp-customer-name.dp-compact-title{font-size:11px}
+.dp-unallocated-row .dp-item strong{font-size:12px}
+.dp-unallocated-row .dp-item strong.dp-compact-title{font-size:10px}
+.dp-matrix .dp-item.dp-allocation[data-allocation-status="confirmed"]{border-color:#c9252c;box-shadow:inset 0 0 0 1px #c9252c}
