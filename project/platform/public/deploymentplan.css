@@ -225,3 +225,17 @@
 .dp-matrix thead th[data-week-start] button{font-size:11px;line-height:15px;white-space:nowrap}.dp-matrix .dp-head-days{display:block;font-size:10px;line-height:13px;font-weight:400;direction:ltr}
 
 .dp-multi-field{display:flex;align-items:center;gap:5px;white-space:nowrap}.dp-multi{min-width:105px;font-size:11px}.dp-multi>summary{cursor:pointer;background:#fff;color:#233b62;border:1px solid #d4dded;border-radius:5px;padding:3px 7px;font-weight:400}.dp-multi-panel{position:fixed;width:240px;max-height:270px;overflow:auto;z-index:1000;background:#fff;border:1px solid #b5c6e0;border-radius:8px;box-shadow:0 6px 24px #15345633;padding:8px;color:#172442;font-size:12px}.dp-demand-controls .dp-multi-panel label{display:flex;gap:7px;align-items:center;padding:6px;white-space:normal}.dp-multi-panel>div{display:flex;justify-content:space-between;margin-top:7px}
+
+.dp-rules-table{margin-top:14px}.dp-rules-table td:first-child{font-size:13px;line-height:1.9}.dp-rules-table td:last-child{width:160px}.dp-rules-table .ui-field{margin:0}.dp-rules-table th{background:#234c83;color:#fff}.dp-rules-table tbody tr:nth-child(even){background:#f1f5fb}
+#dp-expert-search{max-width:360px;margin-bottom:12px}.dp-approval-problem{border:1px solid #d58d33;border-inline-start:4px solid #d58d33;background:#fff6e6;border-radius:8px;padding:12px;margin-bottom:12px}.dp-approval-problem h3{font-size:14px}.dp-approval-problem p{font-size:12px;line-height:1.8}
+.dp-matrix .dp-item.dp-absence{background:#e9a328!important;color:#342006!important;border:2px solid #a66500!important;font-weight:700}.dp-theme-select{width:78px;min-height:32px;font-size:12px;padding:3px}
+:root[data-dp-theme="dark"]{color-scheme:dark;--ui-primary:#90a5ff;--ui-primary-hover:#b0bfff;--ui-primary-soft:#28365e;--ui-ink:#e4ebf7;--ui-muted:#afbdd2;--ui-line:#41506a;--ui-surface:#1d293d;--ui-bg:#121b2a;background:#121b2a;color:#e4ebf7}
+[data-dp-theme="dark"] body,[data-dp-theme="dark"] .cs-main,[data-dp-theme="dark"] .cs-layout{background:#121b2a;color:#e4ebf7}
+[data-dp-theme="dark"] .cs-header,[data-dp-theme="dark"] .cs-sidebar,[data-dp-theme="dark"] .ui-card,[data-dp-theme="dark"] dialog,[data-dp-theme="dark"] .header-menu,[data-dp-theme="dark"] .dp-matrix-wrap,[data-dp-theme="dark"] .dp-matrix-frame,[data-dp-theme="dark"] .dp-multi-panel,[data-dp-theme="dark"] .dp-help-popover{background:#1d293d;color:#e4ebf7;border-color:#41506a}
+[data-dp-theme="dark"] .dp-matrix tbody tr:not(.dp-group)>td{background:#1b2638!important;border-color:#38455c}
+[data-dp-theme="dark"] .ui-input,[data-dp-theme="dark"] .ui-button:not(.ui-button--primary),[data-dp-theme="dark"] .dp-multi>summary,[data-dp-theme="dark"] .dp-day,[data-dp-theme="dark"] .dp-day select{background:#29374e;color:#e4ebf7;border-color:#52617a}
+[data-dp-theme="dark"] .dp-detail-grid>div,[data-dp-theme="dark"] .dp-record,[data-dp-theme="dark"] .dp-rules-table tbody tr:nth-child(even){background:#253349;color:#e4ebf7}
+[data-dp-theme="dark"] .dp-matrix .dp-allocation[data-allocation-status="confirmed"]>strong,[data-dp-theme="dark"] .dp-matrix .dp-allocation[data-allocation-status="confirmed"]>.dp-allocation-meta{color:#111}
+[data-dp-theme="dark"] .dp-live-warnings{background:#45282e;color:#ffd1c9}[data-dp-theme="dark"] .dp-approval-problem{background:#443722;color:#ffe4b0}[data-dp-theme="dark"] .dp-label{background:#34445d;color:#e4ebf7}
+
+[data-dp-theme="dark"] .ui-button--primary{color:#14213a}

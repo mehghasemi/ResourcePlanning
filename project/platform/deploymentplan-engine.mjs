@@ -71,7 +71,14 @@ function enforcePolicies(before,after,p,user,now){
  const reason=text(p.reason||'تأیید هشدار توسط کاربر',1000);for(const i of warnings){const accepted={reason,actor:noteActor(user),at:now.toISOString()};after.exceptions[i.id]=accepted;if(i.conflictId)after.exceptions[i.conflictId]=accepted};audit(after,user,'پذیرش هشدارهای اعتبارسنجی',null,{ruleIds:[...new Set(warnings.map(i=>i.ruleId))],warningIds:warnings.map(i=>i.id),reason},now.toISOString(),warnings.map(i=>i.obligationId))
 }
 export function applyCommand(s,action,p,user,options={}){
- if(!['allocate','allocate-group','delete-allocation','return-group','approve','move-group','review','switch'].includes(action))return applyCommandCore(s,action,p,user,options);
+ if(action==='approve-partial'){
+  if(!options.manager)throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);
+  if(!Array.isArray(p.ids)||!p.ids.length||p.ids.length>2000||new Set(p.ids).size!==p.ids.length)throw fail('تخصیص‌ها را انتخاب کنید.');
+  const approved=[],problems=[];for(const id of p.ids){try{approved.push(...applyCommand(s,'approve',{...p,ids:[id]},user,options))}catch(e){if(!e.status)throw e;problems.push({id,message:e.message,warnings:e.details?.warnings||[],validations:e.details?.validations||[]})}}
+  return {approved,problems}
+ }
+
+ if(!['allocate','allocate-group','delete-allocation','return-group','approve','unapprove','move-group','review','switch'].includes(action))return applyCommandCore(s,action,p,user,options);
  const draft=copy(s),result=applyCommandCore(draft,action,p,user,options),candidate=result?.requestId||result?.requestIds?.length?copy(draft):draft;
  for(const id of [...(result?.requestId?[result.requestId]:[]),...(result?.requestIds||[])]){const request=candidate.requests.find(r=>r.id===id);candidate.allocations=candidate.allocations.filter(a=>a.id!==request.allocationId);if(request.after)candidate.allocations.push(request.after)}
  const auditLength=candidate.audit.length;enforcePolicies(s,candidate,p,user,options.now||new Date());if(candidate!==draft){draft.exceptions=candidate.exceptions;draft.audit.push(...candidate.audit.slice(auditLength))}for(const key of ['allocations','requests','plans','colors','exceptions','archives','audit'])s[key]=draft[key];return result
@@ -202,6 +209,7 @@ function applyCommandCore(s,action,p,user,{manager=false,now=new Date()}={}){
   if(after?.status==='confirmed'){hardApproval(s,after,current)}
   audit(s,user,after?'تخصیص یا جابه‌جایی':'حذف تخصیص',before,after,at,[after?.obligationId||before.obligationId]);return after
  }
+ if(action==='unapprove'){manage();if(!Array.isArray(p.ids)||!p.ids.length||p.ids.length>2000||new Set(p.ids).size!==p.ids.length)throw fail('تخصیص‌ها را انتخاب کنید.');const list=p.ids.map(id=>s.allocations.find(a=>a.id===id));if(list.some(a=>!a||a.status!=='confirmed'||archived(a,current)))throw fail('فقط برنامه‌های قطعیِ قابل ویرایش را انتخاب کنید.');for(const a of list){const before=copy(a);a.status='proposed';a.version++;audit(s,user,'بازگرداندن به پیشنهادی',before,a,at,[a.obligationId])}return list.map(copy)}
  if(action==='approve'){
   manage();if(!Array.isArray(p.ids)||!p.ids.length||p.ids.length>2000||new Set(p.ids).size!==p.ids.length)throw fail('تخصیص‌ها را انتخاب کنید.');const list=p.ids.map(id=>s.allocations.find(a=>a.id===id));if(list.some(a=>!a))throw fail('یکی از تخصیص‌ها پیدا نشد.',409);for(const a of list)hardApproval(s,a,current);for(const a of list){const before=copy(a);a.status='confirmed';a.version++;audit(s,user,'قطعی‌سازی برنامه',before,a,at,[a.obligationId])}return list.map(copy)
  }
