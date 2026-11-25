@@ -1,3 +1,5 @@
+
+async function authorizedRecordIds(read,entity,ids){const unique=[...new Set(ids)],rows=[];for(let offset=0;offset<unique.length;offset+=200){const batches=[];for(let i=offset;i<Math.min(offset+200,unique.length);i+=50){const part=unique.slice(i,Math.min(i+50,offset+200));if(part.some(id=>!guid.test(id)))throw fail('شناسهٔ مرجع معتبر نیست.',502);batches.push(pages(read,entity.EntitySetName,{'$select':entity.PrimaryIdAttribute,'$filter':part.map(id=>entity.PrimaryIdAttribute+' eq '+id).join(' or ')}))}for(const batch of await Promise.all(batches))rows.push(...batch.value)}return rows}
 import {readCrmPages} from '../../../crm-read-policy.mjs'
 import {fail,kinds,openStatuses,approvalStatuses,crmViewReference,day,week,today,plusDays} from './deploymentplan-engine.mjs'
 const guid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i
@@ -103,8 +105,8 @@ export async function authorizationMetadata(read){
  for(const [key,name] of [['incident','incident'],['project','brd_project']]){const matches=result.value.filter(e=>e.LogicalName===name);if(matches.length!==1||!matches[0].EntitySetName?.match(/^[a-z][a-z0-9_]*$/i)||!matches[0].PrimaryIdAttribute?.match(/^[a-z][a-z0-9_]*$/i))throw fail('ساختار بررسی دسترسی CRM تأیید نشد: '+name,422);out[key]=matches[0]}
  return out
 }
-export async function authorizedPlanningIds(read,meta,ids){if(!ids.length)return [];const rows=await byIds(read,meta.incident,[...new Set(ids)],[]);return rows.map(r=>r[meta.incident.PrimaryIdAttribute].toLowerCase())}
-export async function authorizedPlanningProjects(read,meta,ids){if(!ids.length)return [];const rows=await byIds(read,meta.project,[...new Set(ids)],[]);return rows.map(r=>r[meta.project.PrimaryIdAttribute].toLowerCase())}
+export async function authorizedPlanningIds(read,meta,ids){if(!ids.length)return [];const rows=await authorizedRecordIds(read,meta.incident,ids);return rows.map(r=>r[meta.incident.PrimaryIdAttribute].toLowerCase())}
+export async function authorizedPlanningProjects(read,meta,ids){if(!ids.length)return [];const rows=await authorizedRecordIds(read,meta.project,ids);return rows.map(r=>r[meta.project.PrimaryIdAttribute].toLowerCase())}
 export async function authorizedPlanningEvidence(read,groups){
  const out=[]
  for(const [name,ids] of Object.entries(groups||{})){
@@ -112,7 +114,7 @@ export async function authorizedPlanningEvidence(read,groups){
   if(!ids.length)continue
   const defs=await pages(read,'EntityDefinitions',{'$select':'LogicalName,EntitySetName,PrimaryIdAttribute','$filter':`LogicalName eq '${name}'`}),e=defs.value[0]
   if(!e||!/^[a-z][a-z0-9_]*$/i.test(e.EntitySetName))throw fail('ساختار شاهد CRM تأیید نشد.',422)
-  for(const row of await byIds(read,e,ids,[]))out.push(name+':'+row[e.PrimaryIdAttribute].toLowerCase())
+  for(const row of await authorizedRecordIds(read,e,ids))out.push(name+':'+row[e.PrimaryIdAttribute].toLowerCase())
  }
  return out
 }

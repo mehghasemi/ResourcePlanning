@@ -76,11 +76,11 @@ export function validationIssues(s,current=today()){
  for(const c of conflicts(s,current)){const ruleId=conflictRule[c.type],o=s.obligations[c.obligationId];if(!ruleId||!o)continue;const ids=c.allocationId?[c.allocationId,...(c.details.allocations||[])]:s.allocations.filter(a=>a.obligationId===o.id||a.obligationId===c.details.previous).map(a=>a.id);const count=out.length;const related=ids.map(id=>s.allocations.find(a=>a.id===id)).filter(Boolean),dates=[...new Set(related.flatMap(a=>a.days.map(d=>d.date)))].filter(day=>related.filter(a=>a.days.some(d=>d.date===day)).length>1),context=ruleId==='expertOverlap'?'کارشناس: '+(s.experts.find(e=>e.id===related[0]?.expertId)?.name||'نامشخص')+'؛ برنامه‌های هم‌زمان: '+related.map(a=>{const row=s.obligations[a.obligationId];return (row?.customer||row?.project||'')+' — '+(row?.title||'')}).join(' / ')+'؛ تاریخ‌های هم‌پوشان (صرفاً اطلاع): '+dates.map(d=>new Intl.DateTimeFormat('fa-IR',{dateStyle:'short',timeZone:'Asia/Tehran'}).format(new Date(d+'T12:00:00Z'))).join('، '):'';add(ruleId,o,ids,c.details.message||c.type,{...c.details,...context?{context}:{}});if(out.length>count)out.at(-1).conflictId=c.id}
  return out
 }
-function enforcePolicies(before,after,p,user,now){
+function enforcePolicies(before,after,p,user,now,precomputed=null){
  const changed=new Set(after.allocations.filter(a=>!same(a,before.allocations.find(b=>b.id===a.id))).map(a=>a.id));for(const a of before.allocations)if(!after.allocations.some(b=>b.id===a.id))changed.add(a.id);
  const changedProjects=new Set(Object.keys(after.plans).filter(id=>!same(after.plans[id],before.plans[id])));
  const syncProjects=new Set([...before.allocations,...after.allocations].filter(a=>changed.has(a.id)).map(a=>after.obligations[a.obligationId]||before.obligations[a.obligationId]).filter(o=>o?.kind==='Converter'&&/سینک\s*نهایی|final\s*sync/i.test(normalizedTitle(o))).map(o=>o.projectId));
- const issues=validationIssues(after,today(now)).filter(i=>syncProjects.has(after.obligations[i.obligationId]?.projectId)&&['beforeSync','afterSync','unknownStage'].includes(i.ruleId)||i.allocationIds.some(id=>changed.has(id))||changedProjects.has(after.obligations[i.obligationId]?.projectId));
+ const issues=(precomputed||validationIssues(after,today(now))).filter(i=>syncProjects.has(after.obligations[i.obligationId]?.projectId)&&['beforeSync','afterSync','unknownStage'].includes(i.ruleId)||i.allocationIds.some(id=>changed.has(id))||changedProjects.has(after.obligations[i.obligationId]?.projectId));
  const blocks=issues.filter(i=>i.mode==='block');if(blocks.length)throw fail('این جابه‌جایی با قواعد جلوگیری‌کننده سازگار نیست؛ برنامه ذخیره نشد.',422,{validations:blocks});
  const warnings=issues.filter(i=>i.mode==='warn');if(!warnings.length)return;
  if(!p.confirmWarnings||!Array.isArray(p.warningIds)||warnings.some(i=>!p.warningIds.includes(i.id)))throw fail('هشدارهای زیر به تأیید صریح نیاز دارند؛ برای ادامه آن‌ها را بررسی کنید.',409,{warnings,validations:warnings});
@@ -125,14 +125,16 @@ function executePlanningCommand(s,action,p,user,options={}){
  if(action==='approve-partial'){
   if(!options.manager)throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);
   if(!Array.isArray(p.ids)||!p.ids.length||p.ids.length>2000||new Set(p.ids).size!==p.ids.length)throw fail('تخصیص‌ها را انتخاب کنید.');
-  const approved=[],problems=[];for(const id of p.ids){try{approved.push(...applyCommand(s,'approve',{...p,ids:[id]},user,options))}catch(e){if(!e.status)throw e;problems.push({id,message:e.message,warnings:e.details?.warnings||[],validations:e.details?.validations||[]})}}
+  try{const approved=applyCommand(s,'approve',p,user,options);return {approved,problems:[]}}catch(e){if(!e.status)throw e}
+  const preview=copy(s);for(const a of preview.allocations)if(p.ids.includes(a.id))a.status='confirmed';const precomputedValidationIssues=validationIssues(preview,today(options.now||new Date()));
+  const approved=[],problems=[];for(const id of p.ids){try{approved.push(...applyCommand(s,'approve',{...p,ids:[id]},user,{...options,precomputedValidationIssues}))}catch(e){if(!e.status)throw e;problems.push({id,message:e.message,warnings:e.details?.warnings||[],validations:e.details?.validations||[]})}}
   return {approved,problems}
  }
 
  if(!['allocate','allocate-group','delete-allocation','return-group','approve','unapprove','move-group','review','switch'].includes(action))return applyCommandCore(s,action,p,user,options);
  const draft=copy(s),result=applyCommandCore(draft,action,p,user,options),candidate=result?.requestId||result?.requestIds?.length?copy(draft):draft;
  for(const id of [...(result?.requestId?[result.requestId]:[]),...(result?.requestIds||[])]){const request=candidate.requests.find(r=>r.id===id);candidate.allocations=candidate.allocations.filter(a=>a.id!==request.allocationId);if(request.after)candidate.allocations.push(request.after)}
- const auditLength=candidate.audit.length;enforcePolicies(s,candidate,p,user,options.now||new Date());if(candidate!==draft){draft.exceptions=candidate.exceptions;draft.audit.push(...candidate.audit.slice(auditLength))}for(const key of ['allocations','requests','plans','colors','exceptions','archives','audit'])s[key]=draft[key];return result
+ const auditLength=candidate.audit.length;enforcePolicies(s,candidate,p,user,options.now||new Date(),options.precomputedValidationIssues);if(candidate!==draft){draft.exceptions=candidate.exceptions;draft.audit.push(...candidate.audit.slice(auditLength))}for(const key of ['allocations','requests','plans','colors','exceptions','archives','audit'])s[key]=draft[key];return result
 }
 export function createPlanState(){return {schema:1,revision:0,experts:[],obligations:{},blocks:[],allocations:[],absences:[],requests:[],plans:{},colors:{},exceptions:{},archives:{},audit:[],settings:{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:null},lastSync:null}}
 export function crmViewReference(input){
