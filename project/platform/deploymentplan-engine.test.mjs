@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createPlanState,seedInitialExperts,crmViewReference,applyCommand,applySnapshot,archiveWeeks,coverage,conflicts,projectPlan,planView,week,today,validationRules,validationPolicies,obligationStage,syncWindow} from './deploymentplan-engine.mjs'
-import {summary,matrix,matches,blockItem,crmRecordUrl,details,item,statusName,allocationWarningPanel} from './public/deploymentplan-view.mjs'
+import {crmChangeReport,crmChangesPage,summary,matrix,matches,blockItem,crmRecordUrl,details,item,statusName,allocationWarningPanel} from './public/deploymentplan-view.mjs'
 const now=new Date('2026-11-18T09:00:00Z'),at=now.toISOString(),user={id:'manager',name:'مدیر آزمون'}
 function row(id='one',sizeUnits=30,kind='Implementation',extra={}){return {id,number:'CAS-TEST',title:'استقرار',projectId:'project',project:'پروژه آزمون',customerId:'customer',customer:'مشتری آزمون',manager:'مدیر پروژه',province:'تهران',city:'تهران',week:'2026-11-14',sprintDate:'2026-11-14',backlogDate:'2026-11-14',sizeUnits,kind,status:'Planned',sourceStatus:'Planned',closed:false,priorityNumber:1,url:'https://crm.baridsoft.ir/',...extra}}
 function setup(rows=[row()]){const s=createPlanState();applySnapshot(s,rows,user,at);applyCommand(s,'expert',{name:'کارشناس استقرار',kind:'Implementation',active:true,order:1},user,{manager:true,now});applyCommand(s,'expert',{name:'کارشناس کانورت',kind:'Converter',active:true,order:2},user,{manager:true,now});return s}
@@ -151,3 +151,28 @@ test('converter spreading defaults to five working days and keeps one original b
 test('spreading switch and calendar are configurable and manager-controlled',()=>{const s=policySetup([row('one',30,'Converter')]),expert=s.experts.find(e=>e.kind==='Converter').id;assert.throws(()=>run(s,'planning-assumptions',{autoSpreadConverter:false,converterWorkingDays:5},false));run(s,'planning-assumptions',{autoSpreadConverter:false,converterWorkingDays:5});assert.equal(fitting(s,[s.blocks[0].id],expert).allocated.length,0);run(s,'planning-assumptions',{autoSpreadConverter:true,converterWorkingDays:7});const r=fitting(s,[s.blocks[0].id],expert);assert.equal(r.allocated.length,1);const counts={};for(const d of r.allocated[0].days)counts[week(d.date)]=(counts[week(d.date)]||0)+d.units;assert.deepEqual(Object.values(counts),[14,14,2]);assert.throws(()=>run(s,'planning-assumptions',{autoSpreadConverter:true,converterWorkingDays:6}));const before=structuredClone(s.allocations);run(s,'planning-assumptions',{autoSpreadConverter:true,converterWorkingDays:5});assert.deepEqual(s.allocations,before)});
 test('multi-person deployment requires distinct experts in one week even when warnings are off',()=>{const s=policySetup([row('one',20)]),[b1,b2]=s.blocks;run(s,'expert',{name:'نیروی دوم',kind:'Implementation',active:true,order:3});const ex1=s.experts[0].id,ex2=s.experts.at(-1).id,p=(b,expertId,date)=>({blockId:b.id,expertId,days:[{date,units:2}]});run(s,'allocate',p(b1,ex1,'2026-11-21'));assert.throws(()=>run(s,'allocate',p(b2,ex1,'2026-11-21')),/کارشناس متفاوت/);assert.throws(()=>run(s,'allocate',p(b2,ex2,'2026-11-28')),/در یک هفته/);run(s,'allocate',p(b2,ex2,'2026-11-21'));const ids=s.allocations.map(a=>a.id);run(s,'move-group',{ids,delta:7});assert(s.allocations.every(a=>week(a.days[0].date)==='2026-11-28'));const before=structuredClone(s.allocations);assert.throws(()=>run(s,'move-group',{ids,delta:0,expertId:ex1}),/کارشناس متفاوت/);assert.deepEqual(s.allocations,before)});
 test('unplanned deployment shows original effort and required headcount without merging blocks',async()=>{const {unplannedCellItems}=await import('./public/deploymentplan-view.mjs'),s=policySetup([row('one',20)]),html=unplannedCellItems(s,s.blocks);assert(html.includes('۱۰ نفرروز'));assert(html.includes('۲ نیرو'));assert.equal((html.match(/data-block=/g)||[]).length,2);assert(!html.includes('data-inline-group'));assert.equal(s.allocations.length,0)});
+
+
+test('CRM report separates successful source changes from local planning differences and persists review',()=>{
+ const s=setup([row('one',2)]),first=s.lastSync.id;
+ applySnapshot(s,[row('one',2)],user,'2026-11-18T10:00:00Z');
+ const second=s.lastSync.id;assert.notEqual(first,second);assert.equal(s.lastSync.previousAt,at);
+ const baselineEvents=s.audit.filter(a=>a.action==='بازخوانی مرجع CRM').length;
+ applySnapshot(s,[row('one',2)],user,'2026-11-18T11:00:00Z');assert.equal(s.audit.filter(a=>a.action==='بازخوانی مرجع CRM').length,baselineEvents);
+ const assigned=run(s,'allocate',allocation(s,s.blocks[0]));const beforeAllocations=structuredClone(s.allocations);
+ applySnapshot(s,[row('one',4,'Implementation',{week:'2026-11-21',sourceStatus:'Request To Plan Sprint',status:'Request To Plan Sprint'})],user,'2026-11-18T12:00:00Z');
+ assert.deepEqual(s.allocations,beforeAllocations);let visible=planView(s,['one'],'2026-11-18'),report=crmChangeReport(visible),event=report.changes[0];
+ assert(event.fields.some(f=>f.key==='sizeUnits'&&f.before===2&&f.after===4));assert(event.fields.some(f=>f.key==='week'));assert(report.differences[0].issues.some(i=>i.includes('هفته')));assert(report.differences[0].issues.some(i=>i.includes('کمتر')));
+ run(s,'crm-change-review',{id:event.id,status:'accepted',note:'جابجایی مورد تأیید است'},false);visible=planView(s,['one'],'2026-11-18');assert.equal(crmChangeReport(visible).changes[0].review.status,'accepted');assert.deepEqual(s.allocations,beforeAllocations);
+ const html=crmChangesPage(visible,{batch:s.lastSync.id});assert(html.includes('جابجایی مورد تأیید است'));assert(html.includes('هفتهٔ مرجع CRM'));assert(!html.includes('undefined'));
+ const hidden=planView(s,[],'2026-11-18');assert.equal(crmChangeReport(hidden).changes.length,0);assert.deepEqual(hidden.crmChangeReviews,{});assert(hidden.crmSyncRuns.every(r=>r.count===undefined));
+ assert.throws(()=>run(s,'crm-change-review',{id:event.id,status:'invalid'}));assert.throws(()=>run(s,'crm-change-review',{id:'missing',status:'seen'}));
+});
+test('CRM report supports legacy audit, filters, explicit closure and omissions without declaring deletion',()=>{
+ const s=setup([row('one',2)]),before=s.lastSync.at;s.audit.forEach(a=>delete a.syncBatchId);delete s.lastSync.id;delete s.crmSyncRuns;
+ let visible=planView(s,['one'],'2026-11-18');assert(crmChangesPage(visible,{batch:before}).includes('تعهد جدید در داده‌های دریافتی'));
+ run(s,'allocate',allocation(s,s.blocks[0]));applySnapshot(s,[],user,'2026-11-18T10:00:00Z');assert.equal(s.obligations.one.closed,false);assert.equal(crmChangeReport(planView(s,['one'],'2026-11-18')).differences.length,0);
+ applySnapshot(s,[row('one',2,'Implementation',{closed:true,status:'Closed',sourceStatus:'Cancelled'})],user,'2026-11-18T11:00:00Z');visible=planView(s,['one'],'2026-11-18');const report=crmChangeReport(visible);assert(report.changes[0].fields.some(f=>f.key==='closed'));assert(report.differences[0].issues.some(i=>i.includes('بسته یا لغو')));
+ assert(crmChangesPage(visible,{search:'ناموجود',batch:'all'}).includes('تغییری مطابق فیلترها ثبت نشده است'));
+ assert(crmChangesPage(visible,{batch:'all',change:'closed'}).includes('Cancelled'));
+});
