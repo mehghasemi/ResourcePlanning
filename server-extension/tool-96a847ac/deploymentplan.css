@@ -318,3 +318,14 @@
 [data-dp-theme="dark"] .dp-filters .ui-button--primary{background:var(--ui-primary);border-color:var(--ui-primary);color:var(--dp-on-primary)}
 
 .dp-matrix .dp-item.dp-card[data-status],.dp-item.dp-card[data-status]{border-color:var(--dp-card-line)}
+
+/* A single round selection control occupies the former stamp position. */
+.dp-block-wrap:has(>input)>.dp-card>.dp-plan-stamp{visibility:hidden}
+.dp-block-wrap>[data-select-block],.dp-planned-wrap>[data-select-allocation],.dp-group-selection .dp-block-wrap>input{
+ appearance:none;-webkit-appearance:none;visibility:visible;opacity:1;position:absolute;inset-inline-start:5px;top:4px;width:14px;height:14px;margin:0;padding:0;
+ border:1.5px solid var(--dp-muted);border-radius:50%;background:transparent;cursor:pointer;display:grid;place-items:center;box-sizing:border-box
+}
+.dp-block-wrap>input:checked{background:var(--dp-selection);border-color:var(--dp-selection)}
+.dp-block-wrap>input:checked:after{content:'✓';color:var(--dp-on-primary);font:700 11px/1 Arial}
+.dp-block-wrap>input:focus-visible{outline:2px solid var(--dp-selection);outline-offset:2px}
+.dp-group-selection .dp-block-wrap{padding-inline-start:0}
