@@ -70,7 +70,40 @@ function enforcePolicies(before,after,p,user,now){
  if(!p.confirmWarnings||!Array.isArray(p.warningIds)||warnings.some(i=>!p.warningIds.includes(i.id)))throw fail('هشدارهای زیر به تأیید صریح نیاز دارند؛ برای ادامه آن‌ها را بررسی کنید.',409,{warnings,validations:warnings});
  const reason=text(p.reason||'تأیید هشدار توسط کاربر',1000);for(const i of warnings){const accepted={reason,actor:noteActor(user),at:now.toISOString()};after.exceptions[i.id]=accepted;if(i.conflictId)after.exceptions[i.conflictId]=accepted};audit(after,user,'پذیرش هشدارهای اعتبارسنجی',null,{ruleIds:[...new Set(warnings.map(i=>i.ruleId))],warningIds:warnings.map(i=>i.id),reason},now.toISOString(),warnings.map(i=>i.obligationId))
 }
+function allocateFitting(s,p,user,options){
+ const current=today(options.now||new Date());
+ if(!Array.isArray(p.items)||!p.items.length||p.items.length>50||p.items.some(x=>!x||typeof x.blockId!=='string')||new Set(p.items.map(x=>x.blockId)).size!==p.items.length)throw fail('یک تا پنجاه بلوک متفاوت انتخاب کنید.');
+ if(!day(p.week)||week(p.week)!==p.week||p.week<week(current))throw fail('هفتهٔ مقصد معتبر نیست؛ هفتهٔ گذشته قابل تخصیص نیست.');
+ const draft=copy(s),ex=draft.experts.find(e=>e.id===p.expertId);if(!ex?.active)throw fail('کارشناس مقصد باید فعال و معتبر باشد.');
+ const allocated=[],remaining=[],calendar=dates(p.week,plusDays(p.week,6)).filter(date=>ex.kind==='Converter'||![4,5].includes(new Date(date).getUTCDay()));
+ for(const {blockId} of p.items){
+  try{
+   const b=draft.blocks.find(b=>b.id===blockId),o=b&&draft.obligations[b.obligationId],existing=draft.allocations.find(a=>a.blockId===blockId);
+   if(!b||!o)throw fail('بلوک پیدا نشد؛ فهرست تعهدات را تازه کنید.',404);
+   if(o.closed||!openStatuses.includes(o.status))throw fail('وضعیت این تعهد اجازهٔ تخصیص نمی‌دهد.');
+   if(ex.kind!==o.kind)throw fail('گروه تخصصی کارشناس با این بلوک یکسان نیست.');
+   if(existing&&(existing.expertId!==ex.id||existing.status==='confirmed'))throw fail('این بلوک قبلاً تخصیص دارد؛ تکمیل آن فقط برای همان کارشناس و در حالت پیشنهادی مجاز است.',409);
+   const required=b.units-(existing?sum(existing.days.map(d=>d.units)):0);
+   if(!Number.isSafeInteger(required)||required<=0)throw fail('این بلوک کار تخصیص‌نیافته‌ای ندارد.',409);
+   const used=sum(draft.allocations.filter(a=>a.expertId===ex.id).flatMap(a=>a.days.filter(d=>week(d.date)===p.week).map(d=>d.units))),free=Math.max(0,10-used);
+   if(ex.kind==='Implementation'&&required>free){remaining.push({blockId,code:'capacity',reason:'این بلوک کامل در ظرفیت آزاد همین هفته جا نمی‌شود.',requiredUnits:required,freeUnits:free,warnings:[],validations:[]});continue}
+   let left=required;const candidateDays=copy(existing?.days||[]);
+   for(const date of calendar){
+    const usedOnDay=ex.kind==='Converter'?(existing?.days.find(d=>d.date===date)?.units||0):sum(draft.allocations.filter(a=>a.expertId===ex.id).flatMap(a=>a.days.filter(d=>d.date===date).map(d=>d.units)));
+    const units=Math.min(left,Math.max(0,2-usedOnDay));if(!units)continue;
+    const old=candidateDays.find(d=>d.date===date);if(old)old.units+=units;else candidateDays.push({date,units});left-=units;if(!left)break
+   }
+   if(left){remaining.push({blockId,code:'calendar',reason:'تمام کار باقیمانده در روزهای مجاز همین هفته جا نمی‌شود؛ بلوک شکسته یا به هفتهٔ بعد منتقل نشد.',requiredUnits:required,warnings:[],validations:[]});continue}
+   const result=applyCommand(draft,'allocate',{id:existing?.id,blockId,expertId:ex.id,days:candidateDays.sort((a,b)=>a.date.localeCompare(b.date)),note:existing?.note||'',confirmWarnings:p.confirmWarnings,warningIds:p.warningIds,reason:p.reason},user,options);
+   allocated.push(result)
+  }catch(e){if(!e.status)throw e;remaining.push({blockId,code:'validation',reason:e.message,warnings:e.details?.warnings||[],validations:e.details?.validations||[]})}
+ }
+ for(const key of ['allocations','requests','plans','colors','exceptions','audit'])s[key]=draft[key];
+ return {allocated,remaining,expertId:ex.id,week:p.week}
+}
+
 export function applyCommand(s,action,p,user,options={}){
+ if(action==='allocate-fitting')return allocateFitting(s,p,user,options);
  if(action==='approve-partial'){
   if(!options.manager)throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);
   if(!Array.isArray(p.ids)||!p.ids.length||p.ids.length>2000||new Set(p.ids).size!==p.ids.length)throw fail('تخصیص‌ها را انتخاب کنید.');

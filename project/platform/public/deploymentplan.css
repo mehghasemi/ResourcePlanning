@@ -329,3 +329,5 @@
 .dp-block-wrap>input:checked:after{content:'✓';color:var(--dp-on-primary);font:700 11px/1 Arial}
 .dp-block-wrap>input:focus-visible{outline:2px solid var(--dp-selection);outline-offset:2px}
 .dp-group-selection .dp-block-wrap{padding-inline-start:0}
+
+.dp-fit-feedback{margin:5px 0 8px;padding:6px 10px;background:var(--dp-neutral);border:1px solid var(--dp-card-line);border-radius:7px;color:var(--dp-text);font-size:12px;line-height:1.8}.dp-fit-feedback summary{cursor:pointer}.dp-fit-feedback article{padding:8px 0;border-top:1px solid var(--ui-line);margin-top:6px}.dp-fit-feedback p{margin:3px 0}.dp-fit-feedback .ui-button{min-height:28px;font-size:11px;padding:3px 8px}
