@@ -1,0 +1,5 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {shortCenterName,centerDisplayName,renderBacklogCard} from './public/deploymentplan-view.mjs';
+test('center labels preserve distinctive place names',()=>{for(const [full,expected] of [['اداره کل راهداری و حمل و نقل جاده ای استان مرکزی','راهداری مرکزی'],['شرکت ملی پخش فرآورده‌های نفتی منطقه تبریز','پخش تبریز'],['سازمان مرکزی تعاون روستایی ایران','تعاون روستایی ایران'],['شرکت بهره برداری نفت و گاز گچساران','نفت‌وگاز گچساران']])assert.equal(shortCenterName(full),expected)});
+test('collisions retain full names; local override keeps full accessible label',()=>{const a={customer:'شرکت نمونه',status:'Planned',kind:'Implementation'},b={customer:'سازمان نمونه'},s={obligations:{a,b}};assert.equal(centerDisplayName(a,s),a.customer);globalThis.localStorage={getItem:()=>JSON.stringify({'شرکت نمونه':'مرکز نمونه'})};try{assert.equal(centerDisplayName(a,s),'مرکز نمونه');const html=renderBacklogCard({o:a,s});assert.ok(html.includes('<strong>مرکز نمونه</strong>'));assert.ok(html.includes('شرکت نمونه'))}finally{delete globalThis.localStorage}});
