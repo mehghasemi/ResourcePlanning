@@ -103,6 +103,7 @@ function allocateFitting(s,p,user,options){
 }
 
 export function applyCommand(s,action,p,user,options={}){
+ if(action==='preview-fitting')return allocateFitting(copy(s),p,user,options);
  if(action==='allocate-fitting')return allocateFitting(s,p,user,options);
  if(action==='approve-partial'){
   if(!options.manager)throw fail('این اقدام فقط برای مدیر ابزار مجاز است.',403);
