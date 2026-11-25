@@ -331,3 +331,5 @@
 .dp-group-selection .dp-block-wrap{padding-inline-start:0}
 
 .dp-fit-feedback{margin:5px 0 8px;padding:6px 10px;background:var(--dp-neutral);border:1px solid var(--dp-card-line);border-radius:7px;color:var(--dp-text);font-size:12px;line-height:1.8}.dp-fit-feedback summary{cursor:pointer}.dp-fit-feedback article{padding:8px 0;border-top:1px solid var(--ui-line);margin-top:6px}.dp-fit-feedback p{margin:3px 0}.dp-fit-feedback .ui-button{min-height:28px;font-size:11px;padding:3px 8px}
+
+.dp-demand-priority{display:flex;gap:3px;justify-content:flex-end}.dp-demand-priority button{font:inherit;font-size:13px;line-height:18px;padding:0 5px;border:1px solid currentColor;border-radius:4px;background:transparent;color:inherit;cursor:pointer}
