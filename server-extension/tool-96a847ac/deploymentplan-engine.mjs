@@ -139,7 +139,7 @@ function executePlanningCommand(s,action,p,user,options={}){
  for(const id of [...(result?.requestId?[result.requestId]:[]),...(result?.requestIds||[])]){const request=candidate.requests.find(r=>r.id===id);candidate.allocations=candidate.allocations.filter(a=>a.id!==request.allocationId);if(request.after)candidate.allocations.push(request.after)}
  const auditLength=candidate.audit.length;enforcePolicies(s,candidate,p,user,options.now||new Date(),options.precomputedValidationIssues);if(candidate!==draft){draft.exceptions=candidate.exceptions;draft.audit.push(...candidate.audit.slice(auditLength))}for(const key of ['allocations','requests','plans','colors','exceptions','archives','audit'])s[key]=draft[key];return result
 }
-export function createPlanState(){return {schema:1,revision:0,experts:[],obligations:{},blocks:[],allocations:[],absences:[],requests:[],plans:{},colors:{},exceptions:{},archives:{},audit:[],settings:{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:null},lastSync:null}}
+export function createPlanState(){return {schema:1,revision:0,experts:[],obligations:{},blocks:[],allocations:[],absences:[],requests:[],plans:{},colors:{},exceptions:{},archives:{},audit:[],settings:{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:null,crmViewName:'همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون'},lastSync:null}}
 export function crmViewReference(input){
  if(input===null)return null
  if(!input||!['system','personal'].includes(input.type)||typeof input.reference!=='string')throw fail('نوع یا نشانی ویوی CRM معتبر نیست.')
@@ -181,7 +181,7 @@ export function applySnapshot(s,rows,user,at,{referenceIds=[]}={}){
  let changed=0;const batchId=randomUUID(),previousAt=s.lastSync?.at||null,auditStart=s.audit.length;const references=new Set(referenceIds)
  for(const row of rows){const before=s.obligations[row.id];if(!before&&(!kinds.includes(row.kind)||!openStatuses.includes(row.status)||row.closed)&&!references.has(row.id))continue;const next={...copy(row),readAt:at};if(!same(before&&Object.fromEntries(Object.entries(before).filter(([k])=>k!=='readAt')),row)){changed++;audit(s,user,'بازخوانی مرجع CRM',before,next,at,[row.id])}s.obligations[row.id]=next;rebuild(s,next)}
  for(const event of s.audit.slice(auditStart))if(event.action==='بازخوانی مرجع CRM')event.syncBatchId=batchId;
- s.lastSync={id:batchId,at,previousAt,by:noteActor(user),count:rows.length,changed,state:'success',source:s.settings.crmView?.name||'ویوی تنظیم‌شدهٔ تعهدات'};
+ s.lastSync={id:batchId,at,previousAt,by:noteActor(user),count:rows.length,changed,state:'success',source:s.settings.crmView?.name||s.settings.crmViewName||'همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون'};
  s.crmSyncRuns=[...(s.crmSyncRuns||[]),copy(s.lastSync)].slice(-120)
  return s.lastSync
 }

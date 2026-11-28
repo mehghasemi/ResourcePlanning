@@ -176,3 +176,11 @@ test('CRM report supports legacy audit, filters, explicit closure and omissions 
  assert(crmChangesPage(visible,{search:'ناموجود',batch:'all'}).includes('تغییری مطابق فیلترها ثبت نشده است'));
  assert(crmChangesPage(visible,{batch:'all',change:'closed'}).includes('Cancelled'));
 });
+
+
+test('requested Case view is the default and explicit saved view is preserved',()=>{
+ const name='همه بکلاگ های استقرار و کانورت پروژه های اتوماسیون',s=createPlanState();assert.equal(s.settings.crmView,null);assert.equal(s.settings.crmViewName,name);
+ const id='11111111-1111-4111-8111-111111111111';run(s,'settings',{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:{type:'personal',reference:id},crmViewName:'ویوی انتخابی'});assert.deepEqual(s.settings.crmView,{type:'personal',id});assert.equal(s.settings.crmViewName,'ویوی انتخابی');
+ run(s,'settings',{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:120});assert.deepEqual(s.settings.crmView,{type:'personal',id});assert.equal(s.settings.crmViewName,'ویوی انتخابی');
+ run(s,'settings',{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:null,crmViewName:name});assert.equal(s.settings.crmView,null);assert.equal(s.settings.crmViewName,name);
+});
