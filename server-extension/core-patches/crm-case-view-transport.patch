@@ -1,0 +1,22 @@
+--- a/platform/crm-read-policy.mjs
++++ b/platform/crm-read-policy.mjs
+@@ -19,6 +19,8 @@
+     if(rest)throw Error('فیلتر شمارش CRM معتبر نیست.')
+     url.searchParams.set('fetchXml',text);return url.href
+   }
++  const queryKeys=Object.keys(params).filter(key=>key==='savedQuery'||key==='userQuery')
++  if(queryKeys.length){const id=params[queryKeys[0]];if(resource!=='incidents'||queryKeys.length!==1||Object.keys(params).length!==1||!(/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i).test(String(id)))throw new Error('شناسه یا دامنهٔ ویوی CRM معتبر نیست.');url.searchParams.set(queryKeys[0],String(id));return url.href}
+   for(const [key,value] of Object.entries(params)){
+     if(!['$select','$filter','$top','$orderby','$count'].includes(key)&&!(key==='$expand'&&value==='OptionSet'&&metadata.test(resource)))throw new Error('پارامتر CRM مجاز نیست.')
+     url.searchParams.set(key,String(value))
+@@ -30,8 +32,8 @@
+   if(initial.origin!==new URL(CRM_BASE).origin||initial.username||initial.password||initial.hash||!initial.pathname.startsWith(new URL(CRM_BASE).pathname))throw new Error('مسیر اولیهٔ صفحه‌بندی معتبر نیست.')
+   crmReadUrl(decodeURIComponent(initial.pathname.slice(new URL(CRM_BASE).pathname.length)),Object.fromEntries(initial.searchParams))
+   if(url.origin!==new URL(CRM_BASE).origin||url.username||url.password||url.hash||url.pathname!==initial.pathname||!url.pathname.startsWith(new URL(CRM_BASE).pathname)||/\$batch/i.test(url.pathname))throw new Error('مسیر صفحهٔ بعد CRM مجاز نیست؛ خواندن متوقف شد.')
+-  for(const key of url.searchParams.keys())if(!['$select','$filter','$top','$orderby','$count','$skiptoken','$expand'].includes(key))throw new Error('پارامتر صفحهٔ بعد CRM مجاز نیست.')
+-  for(const key of ['$select','$filter','$orderby','$count','$expand'])if(url.searchParams.get(key)!==initial.searchParams.get(key))throw new Error('دامنهٔ صفحه‌بندی CRM تغییر کرده است؛ خواندن متوقف شد.')
++  for(const key of url.searchParams.keys())if(!['$select','$filter','$top','$orderby','$count','$skiptoken','$expand','savedQuery','userQuery'].includes(key))throw new Error('پارامتر صفحهٔ بعد CRM مجاز نیست.')
++  for(const key of ['$select','$filter','$orderby','$count','$expand','savedQuery','userQuery'])if(url.searchParams.get(key)!==initial.searchParams.get(key))throw new Error('دامنهٔ صفحه‌بندی CRM تغییر کرده است؛ خواندن متوقف شد.')
+   return url.href
+ }
+ export function crmTransportUrl(resource,params={}){
