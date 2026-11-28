@@ -364,3 +364,7 @@
 
 /* Matrix filters share one row; overflow stays within the controls on narrow screens. */
 .dp-matrix-filters{display:flex;flex-wrap:nowrap;align-items:center;gap:6px}.dp-matrix-filters .dp-filter-grid{display:flex;flex:1;min-width:0;flex-wrap:nowrap;padding-top:0;overflow-x:auto;scrollbar-width:thin;gap:5px}.dp-matrix-filters .dp-filter-grid>.ui-field,.dp-matrix-filters .dp-filter-grid>.ui-field:nth-child(-n+2){flex:1 1 90px;min-width:72px}.dp-matrix-filters .ui-field .ui-input{width:100%;min-width:0}.dp-matrix-filters .ui-check{flex:none;white-space:nowrap;font-size:10px;gap:3px}.dp-matrix-filters .dp-quick-filters{display:flex;flex:none;align-items:center;flex-wrap:nowrap;gap:6px;margin:0;min-height:28px;overflow:visible}.dp-matrix-filters .dp-filter-actions{flex:none}.dp-matrix-filters .dp-week-navigation{flex:none}
+
+.dp-access-settings{padding:14px;margin-bottom:12px}.dp-access-settings .ui-row{margin:10px 0}.dp-access-settings input[type="search"]{max-width:320px}.dp-access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin:10px 0 18px}.dp-access-settings th,.dp-access-settings td{padding:9px;border-bottom:1px solid var(--dp-card-line);text-align:start}
+
+.cs-nav-item[hidden],#dp-sync[hidden],#dp-add-absence[hidden],[data-crm-review][hidden],#dp-assign-block[hidden],#dp-assign-selected-blocks[hidden],#dp-return-selected[hidden],#dp-move-selected[hidden],#dp-undo-planning[hidden]{display:none!important}
