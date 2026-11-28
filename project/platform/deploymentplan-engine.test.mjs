@@ -184,3 +184,14 @@ test('requested Case view is the default and explicit saved view is preserved',(
  run(s,'settings',{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:120});assert.deepEqual(s.settings.crmView,{type:'personal',id});assert.equal(s.settings.crmViewName,'ویوی انتخابی');
  run(s,'settings',{defaultWeeks:null,syncOnEntry:false,periodic:false,intervalMinutes:60,crmView:null,crmViewName:name});assert.equal(s.settings.crmView,null);assert.equal(s.settings.crmViewName,name);
 });
+
+
+test('read-only matrix displays unplanned section and cards without selection or drop actions',()=>{
+ const s=setup([row('a',6),row('team',20)]),v=planView(s,['a','team'],'2026-11-18');v.presentation={inlineDemandCards:true};
+ const options={from:'2026-11-14',to:'2026-11-20'},editable=matrix(v,options),readonly=matrix(v,{...options,readonly:true});
+ assert(readonly.includes('تعهدات تأمین‌نشده'));assert(readonly.includes('data-readonly-demand-group="true"'));assert(!readonly.includes('data-demand-group="true"'));assert(readonly.includes('dp-team-caption'));
+ assert.equal((readonly.match(/data-block="/g)||[]).length,(editable.match(/data-block="/g)||[]).length);assert((readonly.match(/data-block="/g)||[]).length>0);
+ assert(!readonly.includes('data-select-block'));assert(!readonly.includes('draggable="true"'));assert(!readonly.includes('data-drop-expert'));assert(editable.includes('data-select-block'));assert(editable.includes('draggable="true"'));
+ const collapsed=matrix(v,{...options,readonly:true,collapsedGroups:new Set(['Demands'])});assert(collapsed.includes('data-readonly-demand-group="true"'));assert(!collapsed.includes('data-block="'));
+ const archive=matrix(v,{...options,readonly:true,showDemands:false});assert(!archive.includes('data-demand-group'));assert(!archive.includes('data-block="'));const legacyArchive=matrix({...v,week:'2026-11-14'},{...options,readonly:true});assert(!legacyArchive.includes('data-readonly-demand-group'));assert(!legacyArchive.includes('data-block="'));
+});
